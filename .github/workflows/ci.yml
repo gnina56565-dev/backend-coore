@@ -1,0 +1,43 @@
+name: CI workflow
+on:
+  push:
+    branches:
+      - main
+      - 'feature/**'
+  pull_request:
+    branches:
+      main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+      - name: Set up JDK 25 (Zulu)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '25'
+          cache: 'gradle'
+      - name: Run Checkstyle
+        run: ./gradlew --no-daemon checkstyleMain
+
+      - name: Run Tests
+        run: ./gradlew --no-daemon test
+
+      - name: Create Jacoco_report
+        run: ./gradlew --no-daemon jacocoTestReport
+
+      - name: Create %_Jacoco
+        run: ./gradlew --no-daemon jacocoTestCoverageVerification
+
+      - name: build_run
+        run: ./gradlew --no-daemon build
+          
+    
+    
+        
