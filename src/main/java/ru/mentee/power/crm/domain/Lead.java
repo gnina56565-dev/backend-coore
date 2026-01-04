@@ -7,7 +7,6 @@ public class Lead {
     private String company;
     private String status;
 
-    // Конструктор
     public Lead (String id, String email, String phone, String company, String status) {
         this.id = id;
         this.email = email;
@@ -15,7 +14,7 @@ public class Lead {
         this.company = company;
         this.status = status;
     }
-    // Getters
+
     public String getId() {
         return id;
     }
@@ -32,7 +31,6 @@ public class Lead {
         return status;
     }
 
-    // toString
     @Override
     public String toString() {
         return "Lead{id='" + id + "', Email'" + email +
