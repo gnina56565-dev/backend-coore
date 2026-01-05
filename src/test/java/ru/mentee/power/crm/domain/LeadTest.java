@@ -46,8 +46,8 @@ class LeadTest {
         Lead lead = new Lead("L1", "test@example.com",
                 "+71234567890", "TestCorp", "NEW");
         String toString = lead.toString();
-        assertThat(toString).isEqualTo("Lead{id='L1', Email'test@example.com'," +
-                " phone+71234567890', company'TestCorp', status'NEW'}");
+        assertThat(toString).isEqualTo("Lead{id='L1', email='test@example.com'," +
+                " phone='+71234567890', company='TestCorp', status='NEW'}");
     }
 
 }
