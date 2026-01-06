@@ -7,15 +7,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class LeadStorageTest {
-
     @Test
     void shouldAddLead_whenLeadIsUnique() {
-
         LeadStorage storage = new LeadStorage();
         Lead uniqueLead = new Lead("1", "ivan@mail.ru", "+7123", "TechCorp", "NEW");
-
         boolean added = storage.add(uniqueLead);
-
 
         assertThat(added).isTrue();
         assertThat(storage.size()).isEqualTo(1);
