@@ -9,4 +9,3 @@ public record Address(String city, String street, String zip) {
             throw new IllegalArgumentException();
         }
     }
-}
