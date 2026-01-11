@@ -55,7 +55,7 @@ class InMemoryLeadRepositoryTest {
         UUID idForRemove = null;
         for (int i = 1; i <= 5; i++) {
             UUID id = UUID.randomUUID();
-            if (i == 1){
+            if (i == 1) {
                 idForRemove = id;
             }
             repo.add(new Lead(id, contact, "company Z", "NEW"));
