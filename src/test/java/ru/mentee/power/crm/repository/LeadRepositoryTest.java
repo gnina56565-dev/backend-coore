@@ -103,4 +103,16 @@ class LeadRepositoryTest {
         System.out.println("List поиск: " + listDuration + " ns");
         System.out.println("Ускорение: " + (listDuration / mapDuration) + "x");
     }
+    @Test
+    void shouldSaveBothLeads_evenWithSameEmailAndPhone_becauseRepositoryDoesNotCheckBusinessRules() {
+        Contact sharedContact = new Contact("ivan@mail.ru", "+79001234567",
+                new Address("Moscow", "Tverskaya 1", "101000"));
+        Lead originalLead = new Lead(UUID.randomUUID(), sharedContact, "Acme Corp", "NEW");
+        Lead duplicateLead = new Lead(UUID.randomUUID(), sharedContact, "TechCorp", "QUALIFIED"); // ← ИСПРАВЛЕНО!
+
+        repository.save(originalLead);
+        repository.save(duplicateLead);
+
+        assertThat(repository.size()).isEqualTo(2);
+    }
 }
