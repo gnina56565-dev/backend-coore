@@ -68,7 +68,7 @@ class LeadRepositoryTest {
         List<Lead> leadList = new ArrayList<>();
         UUID targetId = null;
 
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 2000; i++) {
             UUID id = UUID.randomUUID();
             Contact contact = new Contact(
                     "email" + i + "@test.com",
@@ -103,6 +103,7 @@ class LeadRepositoryTest {
         System.out.println("List поиск: " + listDuration + " ns");
         System.out.println("Ускорение: " + (listDuration / mapDuration) + "x");
     }
+
     @Test
     void shouldSaveBothLeads_evenWithSameEmailAndPhone_becauseRepositoryDoesNotCheckBusinessRules() {
         Contact sharedContact = new Contact("ivan@mail.ru", "+79001234567",
