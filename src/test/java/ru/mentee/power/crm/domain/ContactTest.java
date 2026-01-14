@@ -1,3 +1,8 @@
+
+import static org.junit.jupiter.api.Assertions.*;
+class ContactTest {
+  
+
 package ru.mentee.power.crm.domain;
 
 import org.junit.jupiter.api.Test;
