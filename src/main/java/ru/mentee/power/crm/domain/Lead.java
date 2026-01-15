@@ -1,84 +1,26 @@
 package ru.mentee.power.crm.domain;
 
-
-import java.util.Objects;
-
-public class Lead {
-    private String id;
-    private String email;
-    private String phone;
-    private String company;
-    private String status;
-
-
-    public Lead(String id, String email, String phone, String company, String status) {
-        this.id = id;
-        this.email = email;
-        this.phone = phone;
-        this.company = company;
-        this.status = status;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public String getCompany() {
-        return company;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Lead lead = (Lead) o;
-        return Objects.equals(id, lead.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
-    }
-
-    @Override
-    public String toString() {
-        return "Lead{id='" + id + "', email='" + email + "', phone='" + phone
-                + "', company='" + company + "', status='" + status + "'}";
-
 import java.util.UUID;
 
-public record Lead(
-        UUID id,
-        Contact contact,
-        String company,
-        String status
-) {
-    public Lead {
-        if (id == null) {
-            throw new IllegalArgumentException();
-        }
-        if (contact == null) {
-            throw new IllegalArgumentException();
-        }
-        if (status == null) {
-            throw new IllegalArgumentException();
-        }
-        if (!"NEW".equals(status) && !"QUALIFIED".equals(status) && !"CONVERTED".equals(status)) {
-            throw new IllegalArgumentException();
-        }
+        public record Lead(
+                UUID id,
+                Contact contact,
+                String company,
+                String status
+        ) {
+            public Lead {
+                if (id == null) {
+                    throw new IllegalArgumentException();
+                }
+                if (contact == null) {
+                    throw new IllegalArgumentException();
+                }
+                if (status == null) {
+                    throw new IllegalArgumentException();
+                }
+                if (!"NEW".equals(status) && !"QUALIFIED".equals(status) && !"CONVERTED".equals(status)) {
+                    throw new IllegalArgumentException();
+                }
 
-    }
-}
+            }
+        }
