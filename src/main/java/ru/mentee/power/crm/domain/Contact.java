@@ -1,5 +1,8 @@
 package ru.mentee.power.crm.domain;
 
+
+public class Contact {
+}
 public record Contact(String email, String phone, Address address) {
     public Contact {
         if (email == null) {
@@ -13,3 +16,4 @@ public record Contact(String email, String phone, Address address) {
         }
     }
 }
+

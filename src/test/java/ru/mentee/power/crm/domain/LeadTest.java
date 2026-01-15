@@ -48,12 +48,21 @@ class LeadTest {
     }
 
     @Test
+
+    void shouldReturnFormattedString_whenToStringCalled() {
+        Lead lead = new Lead("L1", "test@example.com",
+                "+71234567890", "TestCorp", "NEW");
+        String toString = lead.toString();
+        assertThat(toString).isEqualTo("Lead{id='L1', email='test@example.com'," +
+                " phone='+71234567890', company='TestCorp', status='NEW'}");
+
     void shouldThrowException_whenInvalidStatus() {
         Address address = new Address("Moscow", "Kuybisheva St", "94105");
         Contact contact = new Contact("goga@gmail.com", "+79374810224", address);
         assertThatThrownBy(() -> new Lead (UUID.randomUUID(), contact,
                 "Gora", "INVALID"))
                 .isInstanceOf(IllegalArgumentException.class);
+
 
     }
 
