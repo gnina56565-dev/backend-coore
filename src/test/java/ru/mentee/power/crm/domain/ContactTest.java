@@ -1,14 +1,8 @@
-
-import static org.junit.jupiter.api.Assertions.*;
-class ContactTest {
-  
-
 package ru.mentee.power.crm.domain;
 
 import org.junit.jupiter.api.Test;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ContactTest {
 
@@ -30,8 +24,7 @@ class ContactTest {
 
     @Test
     void shouldThrowException_whenAddressIsNull() {
-        assertThatThrownBy(() -> new Contact ("ananas@gmail.com",
-                "+79375910275", null))
+        assertThatThrownBy(() -> new Contact("ananas@gmail.com", "+79375910275", null))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 }
