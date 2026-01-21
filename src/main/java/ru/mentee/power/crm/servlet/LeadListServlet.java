@@ -24,21 +24,15 @@ public class LeadListServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        try {
-            Path templatePath = Path.of("src/main/jte").toAbsolutePath();
-            DirectoryCodeResolver codeResolver = new DirectoryCodeResolver(templatePath);
-            this.templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
-
-        } catch (Exception e) {
-            throw new ServletException("Failed to initialize template engine", e);
-        }
+        Path templatePath = Path.of("src/main/jte").toAbsolutePath();
+        DirectoryCodeResolver codeResolver = new DirectoryCodeResolver(templatePath);
+        this.templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        try {
             LeadService service = (LeadService) getServletContext().getAttribute("leadService");
             List<Lead> leads = service.findAll();
 
@@ -51,10 +45,5 @@ public class LeadListServlet extends HttpServlet {
             templateEngine.render("leads/list.jte", model, output);
             String html = output.toString();
             response.getWriter().write(html);
-        } catch (Exception e) {
-            e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-                    "Error rendering template: " + e.getMessage());
-        }
     }
 }
