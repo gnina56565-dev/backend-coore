@@ -4,6 +4,8 @@ plugins {
     id 'jacoco'
     id 'checkstyle'
     id 'gg.jte.gradle' version '3.2.0'
+    id 'org.springframework.boot' version '4.0.0'
+    id 'io.spring.dependency-management' version '1.1.6'
 }
 
 group = 'ru.mentee.power'
@@ -20,6 +22,7 @@ ext {
     servletVersion = '6.1.0'
     tomcatVersion = '11.0.1'
     jteVersion = '3.1.15'
+    springBootVersion = '4.0.0'
 }
 
 dependencies {
@@ -36,8 +39,12 @@ dependencies {
     implementation "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}"
     implementation "gg.jte:jte:3.2.0"
     implementation "gg.jte:jte-runtime:3.2.0"
-}
 
+    implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+}
+application {
+    mainClass = 'ru.mentee.power.crm.Main'
+}
 test {
     useJUnitPlatform()
 }
@@ -46,10 +53,6 @@ checkstyle {
     configDirectory = file("config/checkstyle")
     configFile = file("config/checkstyle/checkstyle.xml")
     toolVersion = '10.12.3'
-}
-
-application {
-    mainClass = 'ru.mentee.power.crm.Main'
 }
 
 jte {
@@ -64,4 +67,7 @@ sourceSets {
             srcDirs += "$buildDir/generated/sources/jte/main"
         }
     }
+}
+bootRun {
+    mainClass = 'ru.mentee.power.crm.spring.Application'
 }
