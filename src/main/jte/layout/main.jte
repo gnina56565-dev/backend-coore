@@ -1,4 +1,5 @@
-@param gg.jte.Content content
+@import gg.jte.Content
+@param Content content
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -8,16 +9,16 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50">
-    <header class="bg-blue-600 text-white p-4 shadow-md">
-        <h1 class="text-2xl font-bold">CRM System</h1>
-    </header>
+<header class="bg-blue-600 text-white p-4 shadow-md">
+    <h1 class="text-2xl font-bold">CRM System</h1>
+</header>
 
-    <main class="container mx-auto p-6">
-        ${content}
-    </main>
+<main class="container mx-auto p-6">
+    ${content}
+</main>
 
-    <footer class="bg-purple-400 text-white p-4 text-center mt-8">
-        <p>&copy; 2026 CRM Project</p>
-    </footer>
+<footer class="bg-purple-400 text-white p-4 text-center mt-8">
+    <p>&copy; 2026 CRM Project</p>
+</footer>
 </body>
 </html>

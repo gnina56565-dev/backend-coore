@@ -4,7 +4,7 @@ plugins {
     id 'jacoco'
     id 'checkstyle'
     id 'gg.jte.gradle' version '3.2.0'
-    id 'org.springframework.boot' version '4.0.0'
+    id 'org.springframework.boot' version '3.3.5'
     id 'io.spring.dependency-management' version '1.1.6'
 }
 
@@ -21,8 +21,10 @@ ext {
     lombokVersion = '1.18.40'
     servletVersion = '6.1.0'
     tomcatVersion = '11.0.1'
-    jteVersion = '3.1.15'
-    springBootVersion = '4.0.0'
+    springBootVersion = '3.3.5'
+
+    jteVersion = '3.2.2'
+    jteSpringBootVersion = '3.2.2'
 }
 
 dependencies {
@@ -35,12 +37,9 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:5.21.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.21.0'
 
-    implementation "jakarta.servlet:jakarta.servlet-api:${servletVersion}"
-    implementation "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}"
-    implementation "gg.jte:jte:3.2.0"
-    implementation "gg.jte:jte-runtime:3.2.0"
-
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+    implementation "gg.jte:jte:${jteVersion}"
+    implementation "gg.jte:jte-spring-boot-starter-3:${jteSpringBootVersion}"
 }
 application {
     mainClass = 'ru.mentee.power.crm.Main'
@@ -55,12 +54,6 @@ checkstyle {
     toolVersion = '10.12.3'
 }
 
-jte {
-    sourceDirectory = file('src/main/jte').toPath()
-    contentType = gg.jte.ContentType.Html
-    binaryStaticContent = false
-}
-
 sourceSets {
     main {
         java {
@@ -69,5 +62,14 @@ sourceSets {
     }
 }
 bootRun {
-    mainClass = 'ru.mentee.power.crm.spring.Application'
+    mainClass = 'ru.mentee.power.crm.Application'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+jte {
+    sourceDirectory = file("src/main/jte").toPath()
 }

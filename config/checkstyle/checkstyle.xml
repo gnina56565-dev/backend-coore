@@ -7,6 +7,10 @@
     <!-- Настройки кодировки -->
     <property name="charset" value="UTF-8"/>
 
+    <module name="BeforeExecutionExclusionFileFilter">
+        <property name="fileNamePattern" value="^.*[\\/]generated-sources[\\/].*\.java$"/>
+    </module>
+
     <!-- Правила на уровне файла (не дерева AST) -->
     <module name="LineLength">
         <property name="max" value="120"/>
