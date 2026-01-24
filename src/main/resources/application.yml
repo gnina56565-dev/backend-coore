@@ -3,5 +3,6 @@ server:
 
 gg:
   jte:
-    templateLocation: jte
-    developmentMode: true
+    template-location: jte
+    development-mode: true
+

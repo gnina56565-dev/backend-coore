@@ -1,8 +1,8 @@
 package ru.mentee.power.crm.service;
 
 import org.springframework.stereotype.Service;
-import ru.mentee.power.crm.model.Lead;
-import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.domain.Lead;
+import ru.mentee.power.crm.domain.LeadStatus;
 import ru.mentee.power.crm.repository.LeadRepository;
 
 import java.util.List;

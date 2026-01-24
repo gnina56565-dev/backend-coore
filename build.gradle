@@ -3,9 +3,9 @@ plugins {
     id 'application'
     id 'jacoco'
     id 'checkstyle'
-    id 'gg.jte.gradle' version '3.2.0'
-    id 'org.springframework.boot' version '3.3.5'
-    id 'io.spring.dependency-management' version '1.1.6'
+    id 'gg.jte.gradle' version '3.2.1'
+    id 'org.springframework.boot' version '3.5.5'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'ru.mentee.power'
@@ -21,10 +21,9 @@ ext {
     lombokVersion = '1.18.40'
     servletVersion = '6.1.0'
     tomcatVersion = '11.0.1'
-    springBootVersion = '3.3.5'
-
-    jteVersion = '3.2.2'
-    jteSpringBootVersion = '3.2.2'
+    springBootVersion = '3.5.5'
+    jteVersion = '3.2.1'
+    jteSpringBootVersion = '3.2.1'
 }
 
 dependencies {
@@ -40,9 +39,8 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
     implementation "gg.jte:jte:${jteVersion}"
     implementation "gg.jte:jte-spring-boot-starter-3:${jteSpringBootVersion}"
-}
-application {
-    mainClass = 'ru.mentee.power.crm.Main'
+
+
 }
 test {
     useJUnitPlatform()
@@ -67,9 +65,6 @@ bootRun {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
-}
-jte {
-    sourceDirectory = file("src/main/jte").toPath()
 }

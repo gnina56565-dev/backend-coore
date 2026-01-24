@@ -1,7 +1,7 @@
 package ru.mentee.power.crm.repository;
 
 import org.springframework.stereotype.Repository;
-import ru.mentee.power.crm.model.Lead;
+import ru.mentee.power.crm.domain.Lead;
 
 import java.util.ArrayList;
 import java.util.HashMap;
