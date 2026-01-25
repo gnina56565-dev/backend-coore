@@ -3,9 +3,9 @@ plugins {
     id 'application'
     id 'jacoco'
     id 'checkstyle'
-    id 'gg.jte.gradle' version '3.2.0'
-    id 'org.springframework.boot' version '4.0.0'
-    id 'io.spring.dependency-management' version '1.1.6'
+    id 'org.springframework.boot' version '3.3.0'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'gg.jte.gradle' version '3.1.16'
 }
 
 group = 'ru.mentee.power'
@@ -19,32 +19,28 @@ ext {
     junitVersion = '5.11.0'
     assertjVersion = '3.26.3'
     lombokVersion = '1.18.40'
-    servletVersion = '6.1.0'
-    tomcatVersion = '11.0.1'
-    jteVersion = '3.1.15'
-    springBootVersion = '4.0.0'
+    springBootVersion = '3.3.0'
 }
 
 dependencies {
+    // Lombok
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
+    // Тесты
     testImplementation "org.junit.jupiter:junit-jupiter:${junitVersion}"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.mockito:mockito-core:5.21.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.21.0'
 
-    implementation "jakarta.servlet:jakarta.servlet-api:${servletVersion}"
-    implementation "org.apache.tomcat.embed:tomcat-embed-core:${tomcatVersion}"
-    implementation "gg.jte:jte:3.2.0"
-    implementation "gg.jte:jte-runtime:3.2.0"
-
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+
+    implementation 'gg.jte:jte-spring-boot-starter-3:3.1.16'
+
+    testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
 }
-application {
-    mainClass = 'ru.mentee.power.crm.Main'
-}
+
 test {
     useJUnitPlatform()
 }
@@ -55,12 +51,6 @@ checkstyle {
     toolVersion = '10.12.3'
 }
 
-jte {
-    sourceDirectory = file('src/main/jte').toPath()
-    contentType = gg.jte.ContentType.Html
-    binaryStaticContent = false
-}
-
 sourceSets {
     main {
         java {
@@ -68,6 +58,25 @@ sourceSets {
         }
     }
 }
+
 bootRun {
     mainClass = 'ru.mentee.power.crm.spring.Application'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+jte {
+    sourceDirectory = file('src/main/jte').toPath()
+    contentType = gg.jte.ContentType.Html
+    binaryStaticContent = false
+}
+
+tasks.withType(JavaCompile) {
+    options.release = 21
 }

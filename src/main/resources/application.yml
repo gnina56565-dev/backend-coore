@@ -1,6 +1,11 @@
 server:
   port: 8081
 
-spring:
-  application:
-    name: mentee-power-crm
+gg:
+  jte:
+    developmentMode: true
+
+logging:
+  level:
+    org.springframework.web: DEBUG     # ← ПОКАЖЕТ все mappings!
+    ru.mentee.power.crm: DEBUG        # ← Ваши классы
