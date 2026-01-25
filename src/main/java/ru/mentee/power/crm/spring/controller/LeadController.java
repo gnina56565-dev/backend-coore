@@ -8,7 +8,7 @@ import ru.mentee.power.crm.spring.service.LeadService;  // ← ИСПРАВИТ�
 
 import java.util.List;
 
-@Controller  // ✅ @Controller НЕ @RestController!
+@Controller
 public class LeadController {
 
     private final LeadService leadService;
@@ -21,6 +21,6 @@ public class LeadController {
     public String showLeads(Model model) {
         List<Lead> leads = leadService.findAll();
         model.addAttribute("leads", leads);
-        return "leads/list";  // ✅ JTE путь, НЕ redirect!
+        return "leads/list";
     }
 }

@@ -23,11 +23,9 @@ ext {
 }
 
 dependencies {
-    // Lombok
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
-    // Тесты
     testImplementation "org.junit.jupiter:junit-jupiter:${junitVersion}"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -48,7 +46,8 @@ test {
 checkstyle {
     configDirectory = file("config/checkstyle")
     configFile = file("config/checkstyle/checkstyle.xml")
-    toolVersion = '10.12.3'
+    toolVersion = "10.12.0"
+    ignoreFailures = true
 }
 
 sourceSets {

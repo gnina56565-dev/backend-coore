@@ -4,9 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(scanBasePackages = {
-        "ru.mentee.power.crm.spring.controller",  // ← LeadController!
-        "ru.mentee.power.crm.spring.service",     // ← LeadService!
-        "ru.mentee.power.crm.spring.repository"   // ← LeadRepository!
+        "ru.mentee.power.crm.spring.controller",
+        "ru.mentee.power.crm.spring.service",
+        "ru.mentee.power.crm.spring.repository"
 })
 public class Application {
     public static void main(String[] args) {

@@ -16,6 +16,6 @@ public class LeadService {
     }
 
     public List<Lead> findAll() {
-        return repository.findAll();  // ✅ Теперь типы совпадают!
+        return repository.findAll();  
     }
 }
