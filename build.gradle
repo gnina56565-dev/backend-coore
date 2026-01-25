@@ -3,8 +3,8 @@ plugins {
     id 'application'
     id 'jacoco'
     id 'checkstyle'
-    id 'org.springframework.boot' version '3.3.0'
-    id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.springframework.boot' version '3.5.10'
+    id 'io.spring.dependency-management' version '1.1.7'
     id 'gg.jte.gradle' version '3.1.16'
 }
 
@@ -13,13 +13,15 @@ version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    maven { url 'https://repo.spring.io/milestone' }
+    gradlePluginPortal()
 }
 
 ext {
     junitVersion = '5.11.0'
     assertjVersion = '3.26.3'
     lombokVersion = '1.18.40'
-    springBootVersion = '3.3.0'
+    springBootVersion = '3.5.10'
 }
 
 dependencies {
@@ -33,7 +35,6 @@ dependencies {
     testImplementation 'org.mockito:mockito-junit-jupiter:5.21.0'
 
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
-
     implementation 'gg.jte:jte-spring-boot-starter-3:3.1.16'
 
     testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
@@ -64,10 +65,10 @@ bootRun {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
+    sourceCompatibility = JavaVersion.VERSION_25
+    targetCompatibility = JavaVersion.VERSION_25
 }
 
 jte {
@@ -76,6 +77,3 @@ jte {
     binaryStaticContent = false
 }
 
-tasks.withType(JavaCompile) {
-    options.release = 21
-}

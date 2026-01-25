@@ -18,7 +18,6 @@ class LeadEndpoint {
 
     @Test
     void leadsPageReturnsHtmlWithTable() {
-        // when
         String url = "http://localhost:" + port + "/leads";
         ResponseEntity<String> response =
                 restTemplate.getForEntity(url, String.class);
