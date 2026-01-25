@@ -11,9 +11,11 @@
     <header class="bg-blue-600 text-white p-4 shadow-md">
         <h1 class="text-2xl font-bold">CRM System</h1>
     </header>
+
     <main class="container mx-auto p-6">
         ${content}
     </main>
+
     <footer class="bg-purple-400 text-white p-4 text-center mt-8">
         <p>&copy; 2026 CRM Project</p>
     </footer>
