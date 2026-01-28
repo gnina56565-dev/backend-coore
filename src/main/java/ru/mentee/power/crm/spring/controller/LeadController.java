@@ -3,7 +3,7 @@ package ru.mentee.power.crm.spring.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import ru.mentee.power.crm.spring.service.LeadService;
+import ru.mentee.power.crm.service.LeadService;
 
 @Controller
 public class LeadController {

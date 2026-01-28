@@ -17,7 +17,7 @@ import java.net.http.HttpResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class StackComparisonTest {
+class StackComparsionTest {
 
     private static final int SERVLET_PORT = 8080;
     private static final int SPRING_PORT = 8081;
