@@ -1,5 +1,5 @@
 @param java.util.List<ru.mentee.power.crm.domain.Lead> leads
-@template.layout.main(content = @`
+@template.spring.layout.main(content = @`
     <div class="bg-white rounded-lg shadow-md p-6">
         <h2 class="text-2xl font-bold mb-4">Leads (Spring Boot)</h2>
 
@@ -13,7 +13,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-200">
-                    @for(var lead : leads) {
+                    @for(var lead : leads)
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                 ${lead.contact().email()}
@@ -25,7 +25,7 @@
                                 ${lead.company()}
                             </td>
                         </tr>
-                    } @endfor
+                    @endfor
                 </tbody>
             </table>
         </div>

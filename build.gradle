@@ -13,7 +13,7 @@ version = '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
-    maven { url 'https://repo.spring.io/milestone' }
+    maven { url = 'https://repo.spring.io/milestone' }
     gradlePluginPortal()
 }
 
@@ -33,6 +33,9 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'org.mockito:mockito-core:5.21.0'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.21.0'
+    testImplementation 'org.apache.tomcat.embed:tomcat-embed-core:10.1.28'
+    testImplementation 'org.apache.tomcat.embed:tomcat-embed-websocket:10.1.28'
+    testImplementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
 
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
     implementation 'gg.jte:jte-spring-boot-starter-3:3.1.16'
@@ -62,6 +65,10 @@ sourceSets {
 bootRun {
     mainClass = 'ru.mentee.power.crm.spring.Application'
 }
+application {
+    mainClass = 'ru.mentee.power.crm.Main'
+}
+
 
 java {
     toolchain {
