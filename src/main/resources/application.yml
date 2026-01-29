@@ -7,5 +7,10 @@ gg:
 
 logging:
   level:
-    org.springframework.web: DEBUG     # ← ПОКАЖЕТ все mappings!
-    ru.mentee.power.crm: DEBUG        # ← Ваши классы
+    org.springframework.web: DEBUG
+    ru.mentee.power.crm: DEBUG
+    root: debug
+spring:
+  jte:
+    enabled: true
+    content-type: text/html
