@@ -22,6 +22,19 @@ jobs:
       - name: Run Checkstyle
         run: ./gradlew checkstyleMain checkstyleTest --console=plain
 
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+      - name: Run unit tests
+        run: ./gradlew test --exclude-task StackComparsionTest
+
   integration-test:
     name: Integration Test
     runs-on: ubuntu-latest
@@ -32,25 +45,21 @@ jobs:
         with:
           java-version: '25'
           distribution: 'temurin'
-
       - name: Start Spring Boot
         run: |
           ./gradlew bootRun --args='--server.port=8081' &
           echo $! > spring.pid
-
       - name: Wait for Spring Boot
         run: |
           for i in {1..30}; do
             if curl -s http://localhost:8081/leads | grep -q "<table"; then
-              echo "Spring Boot is ready"
+              echo "Ready"
               break
             fi
             sleep 2
           done
-
-      - name: Run integration test
+      - name: Run ONLY integration test
         run: ./gradlew test --tests StackComparsionTest
-
       - name: Stop Spring Boot
         if: always()
         run: |
@@ -59,8 +68,8 @@ jobs:
           fi
 
   build:
-    name: Build (after tests)
-    needs: [checkstyle, integration-test]
+    name: Final Build
+    needs: [checkstyle, unit-tests, integration-test]  # ← ждёт успеха всех
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -69,5 +78,5 @@ jobs:
         with:
           java-version: '25'
           distribution: 'temurin'
-      - name: Build (no tests, since they already passed)
-        run: ./gradlew assemble --console=plain
+      - name: Build without running tests again
+        run: ./gradlew assemble
