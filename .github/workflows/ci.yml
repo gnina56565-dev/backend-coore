@@ -14,15 +14,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           java-version: '25'
           distribution: 'temurin'
-
       - name: Run Checkstyle
         run: ./gradlew checkstyleMain checkstyleTest --console=plain
+
   integration-test:
     name: Integration Test
     runs-on: ubuntu-latest
@@ -38,7 +37,7 @@ jobs:
         run: |
           ./gradlew bootRun --args='--server.port=8081' &
           echo $! > spring.pid
-            # Ждём, пока Spring Boot ответит 200 на /leads
+
       - name: Wait for Spring Boot
         run: |
           for i in {1..30}; do
@@ -59,32 +58,16 @@ jobs:
             kill $(cat spring.pid)
           fi
 
-  build-no-tests:
-    name: Build (no tests)
+  build:
+    name: Build (after tests)
+    needs: [checkstyle, integration-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           java-version: '25'
           distribution: 'temurin'
-
-      - name: Build without tests
+      - name: Build (no tests, since they already passed)
         run: ./gradlew assemble --console=plain
-
-  build-with-tests:
-    name: Build with tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK
-        uses: actions/setup-java@v4
-        with:
-          java-version: '25'
-          distribution: 'temurin'
-
-      - name: Build with tests
-        run: ./gradlew build --console=plain
