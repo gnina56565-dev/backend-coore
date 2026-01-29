@@ -51,7 +51,8 @@ public class LeadListServlet extends HttpServlet {
             String html = output.toString();
 
             if (html.trim().startsWith("@") || html.contains("TemplateNotFoundException")) {
-                response.sendError(500, "JTE template rendering failed: " + html.substring(0, Math.min(200, html.length())));
+                response.sendError(500, "JTE template rendering failed: "
+                        + html.substring(0, Math.min(200, html.length())));
                 return;
             }
 

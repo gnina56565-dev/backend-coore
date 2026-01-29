@@ -5,7 +5,6 @@ import ru.mentee.power.crm.model.LeadStatus;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.UUID;
 
 public class InMemoryLeadRepository implements LeadRepository {
 
@@ -14,11 +13,11 @@ public class InMemoryLeadRepository implements LeadRepository {
 
     public InMemoryLeadRepository() {
 
-        addLead("Ex@t.com", "Compnay A", LeadStatus.NEW);
-        addLead("Exa@te.com", "Compnay B", LeadStatus.CONTACTED);
-        addLead("Exam@tes.com", "Compnay C", LeadStatus.NEW);
-        addLead("Examp@test.com", "Compnay D", LeadStatus.CONTACTED);
-        addLead("Example@test.com", "Compnay E", LeadStatus.NEW);
+        addLead("Ex@t.com", "Company A", LeadStatus.NEW);
+        addLead("Exa@te.com", "Company B", LeadStatus.CONTACTED);
+        addLead("Exam@tes.com", "Company C", LeadStatus.NEW);
+        addLead("Examp@test.com", "Company D", LeadStatus.CONTACTED);
+        addLead("Example@test.com", "Company E", LeadStatus.NEW);
     }
 
     private void addLead(String email, String company, LeadStatus status) {
