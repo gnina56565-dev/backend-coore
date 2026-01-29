@@ -23,15 +23,41 @@ jobs:
 
       - name: Run Checkstyle
         run: ./gradlew checkstyleMain checkstyleTest --console=plain
+  integration-test:
+    name: Integration Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
 
-      - name: Run integration tests
+      - name: Start Spring Boot
         run: |
           ./gradlew bootRun --args='--server.port=8081' &
-          SPRING_PID=$!
-          timeout 60 bash -c 'while [[ "$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8081/leads)" != "200" ]]; do sleep 2; done' || { echo "Spring Boot did not start"; exit 1; }
-          ./gradlew test --tests StackComparsionTest
-          kill $SPRING_PID
+          echo $! > spring.pid
+            # Ждём, пока Spring Boot ответит 200 на /leads
+      - name: Wait for Spring Boot
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:8081/leads | grep -q "<table"; then
+              echo "Spring Boot is ready"
+              break
+            fi
+            sleep 2
+          done
 
+      - name: Run integration test
+        run: ./gradlew test --tests StackComparsionTest
+
+      - name: Stop Spring Boot
+        if: always()
+        run: |
+          if [ -f spring.pid ]; then
+            kill $(cat spring.pid)
+          fi
 
   build-no-tests:
     name: Build (no tests)
