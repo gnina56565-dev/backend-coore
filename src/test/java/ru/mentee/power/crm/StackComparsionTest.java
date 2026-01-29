@@ -28,7 +28,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
-class StackComparisonTest {
+public class StackComparsionTest {
 
     private static final int SERVLET_PORT = 8080;
     private static final int SPRING_PORT = 8081;
@@ -40,8 +40,11 @@ class StackComparisonTest {
         LeadRepository repo = new InMemoryLeadRepository();
         LeadService service = new LeadService(repo);
 
-        service.addLead("test1@comparison.test", "Company A", LeadStatus.NEW);
-        service.addLead("test2@comparison.test", "Company B", LeadStatus.CONTACTED);
+        service.addLead("Ex@t.com", "Company A", LeadStatus.NEW);
+        service.addLead("Exa@te.com", "Company B", LeadStatus.CONTACTED);
+        service.addLead("Exam@tes.com", "Company C", LeadStatus.NEW);
+        service.addLead("Examp@test.com", "Company D", LeadStatus.CONTACTED);
+        service.addLead("Example@test.com", "Company E", LeadStatus.NEW);
 
         tomcat = new Tomcat();
         tomcat.setPort(SERVLET_PORT);

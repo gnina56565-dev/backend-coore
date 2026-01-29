@@ -2,6 +2,7 @@ package ru.mentee.power.crm;
 
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
+import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.InMemoryLeadRepository;
 import ru.mentee.power.crm.repository.LeadRepository;
 import ru.mentee.power.crm.service.LeadService;
@@ -13,6 +14,12 @@ public class Main {
     public static void main(String[] args) throws Exception {
         LeadRepository leadRepository = new InMemoryLeadRepository();
         LeadService leadService = new LeadService(leadRepository);
+
+        leadService.addLead("Ex@t.com", "Company A", LeadStatus.NEW);
+        leadService.addLead("Exa@te.com", "Company B", LeadStatus.CONTACTED);
+        leadService.addLead("Exam@tes.com", "Company C", LeadStatus.NEW);
+        leadService.addLead("Examp@test.com", "Company D", LeadStatus.CONTACTED);
+        leadService.addLead("Example@test.com", "Company E", LeadStatus.NEW);
 
         Tomcat tomcat = new Tomcat();
         tomcat.setPort(8080);

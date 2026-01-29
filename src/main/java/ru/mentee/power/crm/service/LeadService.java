@@ -1,4 +1,3 @@
-// src/main/java/ru/mentee/power/crm/service/LeadService.java
 package ru.mentee.power.crm.service;
 
 import org.springframework.stereotype.Service;

@@ -25,7 +25,12 @@ jobs:
         run: ./gradlew checkstyleMain checkstyleTest --console=plain
 
       - name: Run integration tests
-        run: ./gradlew test --tests StackComparsionTest
+        run: |
+          ./gradlew bootRun --args='--server.port=8081' &
+          SPRING_PID=$!
+          timeout 60 bash -c 'while [[ "$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8081/leads)" != "200" ]]; do sleep 2; done' || { echo "Spring Boot did not start"; exit 1; }
+          ./gradlew test --tests StackComparsionTest
+          kill $SPRING_PID
 
 
   build-no-tests:
