@@ -1,13 +1,12 @@
 package ru.mentee.power.crm.spring.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import ru.mentee.power.crm.domain.Lead;
-import ru.mentee.power.crm.spring.service.LeadService;  // ← ИСПРАВИТЕ: spring.service!
+import ru.mentee.power.crm.service.LeadService;
 
-import java.util.List;
-
+@Service
 @Controller
 public class LeadController {
 
@@ -19,8 +18,7 @@ public class LeadController {
 
     @GetMapping("/leads")
     public String showLeads(Model model) {
-        List<Lead> leads = leadService.findAll();
-        model.addAttribute("leads", leads);
-        return "leads/list";
+        model.addAttribute("leads", leadService.findAll());
+        return "spring/leads/list";
     }
 }

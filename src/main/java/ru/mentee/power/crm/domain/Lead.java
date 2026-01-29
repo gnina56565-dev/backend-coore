@@ -5,7 +5,7 @@ import java.util.UUID;
 public record Lead(
         UUID id,
         Contact contact,
-        String company  // ← 3 поля!
+        String company
         ) {
     public Lead {
         if (id == null) {
