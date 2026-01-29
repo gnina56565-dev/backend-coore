@@ -25,7 +25,7 @@ jobs:
         run: ./gradlew checkstyleMain checkstyleTest --console=plain
 
       - name: Run integration tests
-        run: ./gradlew test --tests StackComparisonTest
+        run: ./gradlew test --tests StackComparsionTest
 
 
   build-no-tests:
