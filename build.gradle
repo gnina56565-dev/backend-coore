@@ -45,7 +45,6 @@ dependencies {
 
 test {
     useJUnitPlatform()
-    exclude '**/StackComparsionTest.class'
 }
 
 checkstyle {
