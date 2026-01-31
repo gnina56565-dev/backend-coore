@@ -100,8 +100,8 @@ class LeadServiceTest {
         service.addLead("Smil@face.com", "G", LeadStatus.CONTACTED);
         service.addLead("Smile@face.com", "H", LeadStatus.CONTACTED);
 
-        service.addLead("te@ex.com", "I", LeadStatus.QUALIFIED);
-        service.addLead("te@ex.com", "J", LeadStatus.QUALIFIED);
+        service.addLead("text@ex.com", "I", LeadStatus.QUALIFIED);
+        service.addLead("testo@ex.com", "J", LeadStatus.QUALIFIED);
 
         List<Lead> result = service.findByStatus(LeadStatus.NEW);
 
@@ -123,14 +123,14 @@ class LeadServiceTest {
     }
     @Test
     void shouldReturnOnlyNewLeads_whenFindByStatusContacted() {
-        service.addLead("te@ex.com", "A", LeadStatus.NEW);
-        service.addLead("tes@exa.com", "B", LeadStatus.NEW);
+        service.addLead("tex@ex.com", "A", LeadStatus.NEW);
+        service.addLead("testi@exa.com", "B", LeadStatus.NEW);
 
         service.addLead("S@f.com", "D", LeadStatus.CONTACTED);
         service.addLead("Smile@face.com", "H", LeadStatus.CONTACTED);
 
-        service.addLead("te@ex.com", "I", LeadStatus.QUALIFIED);
-        service.addLead("te@ex.com", "J", LeadStatus.QUALIFIED);
+        service.addLead("tea@ex.com", "I", LeadStatus.QUALIFIED);
+        service.addLead("testp@ex.com", "J", LeadStatus.QUALIFIED);
 
         List<Lead> result = service.findByStatus(LeadStatus.CONTACTED);
 
@@ -139,14 +139,14 @@ class LeadServiceTest {
     }
     @Test
     void shouldReturnOnlyNewLeads_whenFindByStatusQualified() {
-        service.addLead("te@ex.com", "A", LeadStatus.NEW);
-        service.addLead("tes@exa.com", "B", LeadStatus.NEW);
+        service.addLead("texj@ex.com", "A", LeadStatus.NEW);
+        service.addLead("tesq@exa.com", "B", LeadStatus.NEW);
 
         service.addLead("S@f.com", "D", LeadStatus.CONTACTED);
         service.addLead("Smile@face.com", "H", LeadStatus.CONTACTED);
 
-        service.addLead("te@ex.com", "I", LeadStatus.QUALIFIED);
-        service.addLead("te@ex.com", "J", LeadStatus.QUALIFIED);
+        service.addLead("tel@ex.com", "I", LeadStatus.QUALIFIED);
+        service.addLead("tevm@ex.com", "J", LeadStatus.QUALIFIED);
 
         List<Lead> result = service.findByStatus(LeadStatus.QUALIFIED);
 

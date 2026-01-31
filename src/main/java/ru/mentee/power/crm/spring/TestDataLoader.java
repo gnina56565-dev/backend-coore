@@ -1,5 +1,4 @@
-// TestDataLoader.java
-package ru.mentee.power.crm.spring;
+    package ru.mentee.power.crm.spring;
 
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;

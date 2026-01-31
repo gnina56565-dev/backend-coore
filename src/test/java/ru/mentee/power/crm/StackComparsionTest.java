@@ -91,7 +91,6 @@ public class StackComparsionTest {
     @Test
     @DisplayName("Оба стека должны возвращать лидов в HTML таблице")
     void shouldReturnLeadsFromBothStacks() throws Exception {
-        // Given: оба сервера запущены (предполагается, что Spring Boot запущен отдельно на 8081)
         HttpRequest servletRequest = HttpRequest.newBuilder()
                 .uri(URI.create("http://localhost:" + SERVLET_PORT + "/leads"))
                 .GET()
@@ -101,13 +100,11 @@ public class StackComparsionTest {
                 .GET()
                 .build();
 
-        // When: отправляем запросы
         HttpResponse<String> servletResponse = httpClient.send(servletRequest,
                 HttpResponse.BodyHandlers.ofString());
         HttpResponse<String> springResponse = httpClient.send(springRequest,
                 HttpResponse.BodyHandlers.ofString());
 
-        // Then: оба отвечают 200 и содержат таблицу
         assertThat(servletResponse.statusCode()).isEqualTo(200);
         assertThat(springResponse.statusCode()).isEqualTo(200);
         assertThat(servletResponse.body()).contains("<table");
