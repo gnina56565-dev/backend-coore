@@ -3,6 +3,8 @@ package ru.mentee.power.crm.spring.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
@@ -18,13 +20,24 @@ public class LeadController {
     public LeadController(LeadService leadService) {
         this.leadService = leadService;
     }
+    @GetMapping("/leads/new")
+    public String showCreateForm(Model model) {
+        model.addAttribute("lead", new Lead(null, "", "", LeadStatus.NEW));
+        return "leads/create";
+    }
+
+    @PostMapping("/leads")
+    public String createLead(@ModelAttribute Lead lead) {
+        leadService.addLead(lead.email(), lead.company(), lead.status());
+        return "redirect:/leads";
+    }
 
     @GetMapping("/leads")
     public String showLeads(
             @RequestParam(required = false) LeadStatus status,
             Model model) {
         List<Lead> leads;
-        if (status == null){
+        if (status == null) {
             leads = leadService.findAll();
         } else {
             leads = leadService.findByStatus(status);
@@ -32,6 +45,6 @@ public class LeadController {
 
         model.addAttribute("leads", leads);
         model.addAttribute("currentFilter", status);
-        return "spring/leads/list";
+        return "leads/list";
     }
 }

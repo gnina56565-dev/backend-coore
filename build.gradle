@@ -83,8 +83,7 @@ java {
 }
 
 jte {
-    sourceDirectory = file('src/main/jte').toPath()
+    sourceDirectory = file('src/main/resources/jte').toPath()
     contentType = gg.jte.ContentType.Html
     binaryStaticContent = false
 }
-

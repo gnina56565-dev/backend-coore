@@ -4,12 +4,8 @@ server:
 gg:
   jte:
     developmentMode: true
+    templateLocation: src/main/resources/jte
 
-logging:
-  level:
-    org.springframework.web: DEBUG
-    ru.mentee.power.crm: DEBUG
-    root: debug
 spring:
   jte:
     enabled: true
