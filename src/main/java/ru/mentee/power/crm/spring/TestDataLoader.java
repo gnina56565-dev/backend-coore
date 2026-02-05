@@ -3,10 +3,12 @@ package ru.mentee.power.crm.spring;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.service.LeadService;
+import ru.mentee.power.crm.spring.service.LeadService;
 
 @Configuration
+@Profile("dev")
 public class TestDataLoader {
 
     @Bean

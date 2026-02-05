@@ -45,10 +45,6 @@ dependencies {
 
 test {
     useJUnitPlatform()
-    include '**/*ServiceTest*'
-    include '**/*RepositoryTest*'
-
-    exclude '**/StackComparsionTest*'
 }
 
 checkstyle {
