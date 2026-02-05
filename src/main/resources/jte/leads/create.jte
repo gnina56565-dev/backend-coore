@@ -1,9 +1,5 @@
 @import ru.mentee.power.crm.model.Lead
 
-@layout("layout/main.jte")
-@template
-@param Lead lead
-
 @template.layout.main(
   content = @`
     <div class="max-w-md mx-auto mt-8">
