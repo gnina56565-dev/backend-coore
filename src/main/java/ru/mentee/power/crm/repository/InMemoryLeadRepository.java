@@ -1,5 +1,6 @@
 package ru.mentee.power.crm.repository;
 
+import org.springframework.stereotype.Repository;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 
@@ -10,13 +11,13 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Repository
 public class InMemoryLeadRepository implements LeadRepository {
 
     private final Map<UUID, Lead> storage = new ConcurrentHashMap<>();
     private final Map<String, UUID> emailIndex = new ConcurrentHashMap<>();
 
     public InMemoryLeadRepository() {
-
     }
 
     private void addLead(String email, String company, LeadStatus status) {
