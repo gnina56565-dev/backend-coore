@@ -1,8 +1,7 @@
 package ru.mentee.power.crm.spring.service;
 
 import jakarta.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
@@ -13,9 +12,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class LeadService {
-    private static final Logger log = LoggerFactory.getLogger(LeadService.class);
     private final LeadRepository repository;
 
     public LeadService(LeadRepository repository) {
