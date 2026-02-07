@@ -2,7 +2,8 @@ package ru.mentee.power.crm.spring.controller;
 
 import ru.mentee.power.crm.spring.MockLeadService;
 import org.junit.jupiter.api.Test;
-import static org.assertj.core.api.Assertions.*;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class LeadControllerUnitTest {
 

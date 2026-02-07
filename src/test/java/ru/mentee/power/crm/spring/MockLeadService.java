@@ -14,7 +14,7 @@ public class MockLeadService extends LeadService {
         super(null);
         this.mockLeads = List.of(
                 new Lead(UUID.randomUUID(), "test1@example.com", "Company A", LeadStatus.NEW),
-                new Lead(UUID.randomUUID(), "test2@example.com", "Company B",LeadStatus.QUALIFIED)
+                new Lead(UUID.randomUUID(), "test2@example.com", "Company B", LeadStatus.QUALIFIED)
         );
     }
 
