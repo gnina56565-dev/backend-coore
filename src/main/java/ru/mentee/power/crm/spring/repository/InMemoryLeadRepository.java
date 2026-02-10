@@ -22,14 +22,13 @@ public class InMemoryLeadRepository implements LeadRepository {
 
     private void addLead(String email, String company, LeadStatus status) {
         Lead lead = new Lead(UUID.randomUUID(), email, company, status);
-        storage.put(lead.id(), lead);
-        emailIndex.put(email, lead.id());
+        storage.put(lead.getId(), lead);
+        emailIndex.put(email, lead.getId());
     }
 
     @Override
     public Lead save(Lead lead) {
-        storage.put(lead.id(), lead);
-        emailIndex.put(lead.email(), lead.id());
+        storage.put(lead.getId(), lead);
         return lead;
     }
 
@@ -53,7 +52,7 @@ public class InMemoryLeadRepository implements LeadRepository {
     public void delete(UUID id) {
         Lead lead = storage.remove(id);
         if (lead != null) {
-            emailIndex.remove(lead.email());
+            emailIndex.remove(lead.getEmail());
         }
     }
 }

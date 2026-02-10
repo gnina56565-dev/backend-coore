@@ -39,11 +39,11 @@
                 <th class="px-4 py-2 text-left">Email</th>
                 <th class="px-4 py-2 text-left">Company</th>
                 <th class="px-4 py-2 text-left">Status</th>
-                <th class="px-4 py-2 text-left">Действия</th>  <!-- ДОБАВЛЕНО -->
+                <th class="px-4 py-2 text-left">Действия</th>
             </tr>
         </thead>
         <tbody>
-            @for(Lead lead : leads)
+            @for(var lead : leads)
                 <tr class="border-t hover:bg-gray-50">
                     <td class="px-4 py-2 font-mono text-sm">${lead.getId().toString()}</td>
                     <td class="px-4 py-2">${lead.getEmail()}</td>
@@ -53,9 +53,8 @@
                             ${lead.getStatus()}
                         </span>
                     </td>
-                    <!-- ДОБАВЛЕНО -->
                     <td class="px-4 py-2">
-                        <a href="/leads/${lead.getId()}/edit" class="text-blue-600 hover:underline font-medium">
+                        <a href="/leads/${lead.getId().toString()}/edit" class="text-blue-600 hover:underline font-medium">
                             Редактировать
                         </a>
                     </td>
