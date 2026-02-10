@@ -61,7 +61,7 @@ public class LeadService {
         return repository.findByEmail(email);
     }
 
-    public Lead update(UUID id, Lead updatedLead){
+    public Lead update(UUID id, Lead updatedLead) {
         Lead newLead = repository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
