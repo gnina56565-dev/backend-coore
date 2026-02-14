@@ -72,12 +72,7 @@ public class LeadController {
         return "redirect:/leads";
     }
 
-    @PostMapping("/leads/status")
-    public String deleteLead(@PathVariable LeadStatus leadStatus){
-        leadStatusService.leadAddStatus(leadStatus);
-        return "redirect:/leads";
-    }
-    @PostMapping("/leads/status")
+    @PostMapping("/leads/status")  // ← теперь внутри класса
     public String addLeadStatus(@ModelAttribute LeadStatusNew leadStatusNew){
         leadStatusService.leadAddStatus(leadStatusNew);
         return "redirect:/leads";
