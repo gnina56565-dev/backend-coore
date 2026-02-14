@@ -11,6 +11,10 @@ public class Lead {
     private String company;
     private LeadStatus status;
 
-    public Lead(UUID uuid, String mail, String existingCompany, LeadStatus leadStatus) {
+    public Lead(UUID id, String email, String company, LeadStatus status) {
+        this.id = id;
+        this.email = email;
+        this.company = company;
+        this.status = status;
     }
 }
