@@ -55,4 +55,6 @@ public class InMemoryLeadRepository implements LeadRepository {
             emailIndex.remove(lead.getEmail());
         }
     }
+    //метод добавления нового статуса
+    //и для получения
 }

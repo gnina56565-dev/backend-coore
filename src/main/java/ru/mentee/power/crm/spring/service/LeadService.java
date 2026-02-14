@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.model.LeadStatusNew;
 import ru.mentee.power.crm.spring.repository.LeadRepository;
 
 import java.util.List;
@@ -72,4 +73,13 @@ public class LeadService {
         newLead.setStatus(updatedLead.getStatus());
         return repository.save(newLead);
     }
+//    public void delete(UUID id){
+
+    public void updateStatus(UUID id, LeadStatusNew status) {
+        Lead lead = repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lead not found: " + id));
+        lead.setStatus(LeadStatus.valueOf(status.toString()));
+        repository.save(lead);
+    }
+
 }

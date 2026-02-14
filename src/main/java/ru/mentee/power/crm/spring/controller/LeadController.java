@@ -4,16 +4,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.model.LeadStatusNew;
 import ru.mentee.power.crm.spring.service.LeadService;
+import ru.mentee.power.crm.spring.service.LeadStatusService;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +20,7 @@ import java.util.UUID;
 public class LeadController {
 
     private final LeadService leadService;
+    private final LeadStatusService leadStatusService;
 
     @GetMapping("/leads/new")
     public String showCreateForm(Model model) {
@@ -71,6 +69,17 @@ public class LeadController {
     @PostMapping("/leads/{id}")
     public String updateLead(@PathVariable UUID id, @ModelAttribute Lead lead) {
         leadService.update(id, lead);
+        return "redirect:/leads";
+    }
+
+    @PostMapping("/leads/status")
+    public String deleteLead(@PathVariable LeadStatus leadStatus){
+        leadStatusService.leadAddStatus(leadStatus);
+        return "redirect:/leads";
+    }
+    @PostMapping("/leads/status")
+    public String addLeadStatus(@ModelAttribute LeadStatusNew leadStatusNew){
+        leadStatusService.leadAddStatus(leadStatusNew);
         return "redirect:/leads";
     }
 }

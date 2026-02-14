@@ -48,7 +48,7 @@
 //
 //        verify(mockRepository, times(1)).save(any(Lead.class));
 //
-//        assertThat(result.email()).isEqualTo("new@example.com");
+//        assertThat(result.getEmail()()).isEqualTo("new@example.com");
 //    }
 //    @Test
 //    void shouldNotCallSave_whenEmailExists() {
