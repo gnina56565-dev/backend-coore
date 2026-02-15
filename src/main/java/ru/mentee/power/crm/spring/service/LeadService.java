@@ -72,4 +72,12 @@ public class LeadService {
         newLead.setStatus(updatedLead.getStatus());
         return repository.save(newLead);
     }
+    public void delete(UUID id) {
+        repository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Lead not found with id: " + id
+                ));
+        repository.delete(id);
+    }
 }

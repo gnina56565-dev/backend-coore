@@ -57,6 +57,12 @@
                         <a href="/leads/${lead.getId().toString()}/edit" class="text-blue-600 hover:underline font-medium">
                             Редактировать
                         </a>
+                        <form method="post" action="/leads/${lead.getId}/delete" class="inline"
+                              onclick="return confirm('Удалить лида ${lead.getCompany}?')">
+                          <button type="submit" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
+                            Удалить
+                          </button>
+                        </form>
                     </td>
                 </tr>
             @endfor

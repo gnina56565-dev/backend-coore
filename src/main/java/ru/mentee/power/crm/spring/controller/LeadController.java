@@ -73,4 +73,15 @@ public class LeadController {
         leadService.update(id, lead);
         return "redirect:/leads";
     }
+
+    @PostMapping("/leads/{id}/delete")
+    public String deleteLead(@PathVariable UUID id) {
+        leadService.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,  // 404 — ресурс не найден
+                        "Lead not found with id: " + id
+                ));
+        leadService.delete(id);
+        return "redirect:/leads";
+    }
 }
