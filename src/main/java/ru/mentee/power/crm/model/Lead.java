@@ -17,4 +17,8 @@ public class Lead {
         this.company = company;
         this.status = status;
     }
+
+    public Lead() {
+
+    }
 }
