@@ -1,7 +1,6 @@
 package ru.mentee.power.crm.model;
 
 import lombok.Data;
-
 import java.util.UUID;
 
 @Data
@@ -19,6 +18,22 @@ public class Lead {
     }
 
     public Lead() {
+    }
 
+    // === ДОБАВЬТЕ ЭТИ МЕТОДЫ ВРУЧНУЮ ===
+    public UUID getId() {
+        return id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getCompany() {
+        return company;
+    }
+
+    public LeadStatus getStatus() {
+        return status;
     }
 }
