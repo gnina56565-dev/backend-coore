@@ -78,7 +78,7 @@ public class LeadController {
     public String deleteLead(@PathVariable UUID id) {
         leadService.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,  // 404 — ресурс не найден
+                        HttpStatus.NOT_FOUND,
                         "Lead not found with id: " + id
                 ));
         leadService.delete(id);
