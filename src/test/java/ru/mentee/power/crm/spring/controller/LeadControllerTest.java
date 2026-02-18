@@ -44,7 +44,7 @@ class LeadControllerTest {
     @Test
     void shouldDeleteLeadAndRedirect() throws Exception {
         UUID id = UUID.randomUUID();
-        Lead lead = new Lead(); // Создаём тестовый лид
+        Lead lead = new Lead();
         when(leadService.findById(id)).thenReturn(Optional.of(lead));
         doNothing().when(leadService).delete(id);
         mockMvc.perform(post("/leads/{id}/delete", id))
