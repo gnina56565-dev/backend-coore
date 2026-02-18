@@ -80,4 +80,23 @@ public class LeadService {
                 ));
         repository.delete(id);
     }
+
+    public List<Lead> findLeads(String search, String status) {
+        List<Lead> leads = repository.findAll();
+        return leads.stream()
+                .filter(lead -> {
+                    if (search == null || search.isBlank()) {
+                        return true;
+                    }
+                    String lowerSearch = search.toLowerCase();
+                    return lead.getEmail().toLowerCase().contains(lowerSearch);
+                })
+                .filter(lead -> {
+                    if (status == null || status.isBlank()) {
+                        return true;
+                    }
+                    return lead.getStatus().equals(status);
+                })
+                .collect(Collectors.toList());
+    }
 }

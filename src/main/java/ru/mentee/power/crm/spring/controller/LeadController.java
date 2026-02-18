@@ -36,21 +36,6 @@ public class LeadController {
         return "redirect:/leads";
     }
 
-    @GetMapping("/leads")
-    public String showLeads(
-            @RequestParam(required = false) LeadStatus status,
-            Model model) {
-        List<Lead> leads;
-        if (status == null) {
-            leads = leadService.findAll();
-        } else {
-            leads = leadService.findByStatus(status);
-        }
-        model.addAttribute("leads", leads);
-        model.addAttribute("currentFilter", status);
-        return "spring/list";
-    }
-
     @GetMapping("/")
     @ResponseBody
     public String home() {
@@ -83,5 +68,16 @@ public class LeadController {
                 ));
         leadService.delete(id);
         return "redirect:/leads";
+    }
+    @GetMapping("/leads")
+    public String listLeads(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
+            Model model) {
+        List<Lead> leads = leadService.findLeads(search, status);
+        model.addAttribute("leads", leads);
+        model.addAttribute("search", search != null ? search : "");
+        model.addAttribute("status", status != null ? status : "");
+        return "spring/list";
     }
 }
