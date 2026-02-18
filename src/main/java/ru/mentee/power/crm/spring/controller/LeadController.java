@@ -71,8 +71,8 @@ public class LeadController {
     }
     @GetMapping("/leads")
     public String listLeads(
-            @RequestParam(required=false) String search,
-            @RequestParam(required=false) String status,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) String status,
             Model model) {
         List<Lead> leads = leadService.findLeads(search, status);
         model.addAttribute("leads", leads);
