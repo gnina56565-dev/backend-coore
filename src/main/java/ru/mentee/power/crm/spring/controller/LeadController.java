@@ -1,15 +1,12 @@
 package ru.mentee.power.crm.spring.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
@@ -31,7 +28,8 @@ public class LeadController {
     }
 
     @PostMapping("/leads")
-    public String createLead(@ModelAttribute Lead lead) {
+    public String createLead(@ModelAttribute @Valid Lead lead, BindingResult result) {
+        if (result.hasErrors()) { return "spring/leads/form"; }
         leadService.addLead(lead.getEmail(), lead.getCompany(), lead.getStatus());
         return "redirect:/leads";
     }
@@ -54,7 +52,9 @@ public class LeadController {
     }
 
     @PostMapping("/leads/{id}")
-    public String updateLead(@PathVariable UUID id, @ModelAttribute Lead lead) {
+    public String updateLead(@PathVariable UUID id,@Valid @ModelAttribute Lead lead,
+                             BindingResult result) {
+        if (result.hasErrors()) { return "leads/form"; }
         leadService.update(id, lead);
         return "redirect:/leads";
     }

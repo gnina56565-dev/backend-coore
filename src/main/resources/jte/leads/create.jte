@@ -5,7 +5,7 @@
     <div class="max-w-md mx-auto mt-8">
       <h1 class="text-2xl font-bold mb-6">Добавить нового лида</h1>
 
-      <form action="/leads" method="post" class="space-y-4">
+        <form action="/leads" method="post" class="space-y-4" novalidate>
         <!-- Email -->
         <div>
           <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
