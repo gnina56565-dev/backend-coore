@@ -9,7 +9,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.model.Lead;
-import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.service.LeadService;
 
 import java.util.List;
@@ -23,7 +22,9 @@ public class LeadController {
 
     @GetMapping("/leads/new")
     public String showCreateForm(Model model) {
-        model.addAttribute("lead", new Lead(null, "", "", LeadStatus.NEW));
+        if (!model.containsAttribute("lead")){
+            model.addAttribute("lead", new Lead());
+        }
         return "leads/create";
     }
 

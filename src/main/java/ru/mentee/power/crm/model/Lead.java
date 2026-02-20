@@ -14,7 +14,7 @@ public class Lead {
     private UUID id;
     @NotBlank(message = "Email обязателен")
     @Email(message = "Некорректный формат email")
-    @Size(min = 2, max = 100, message = "Имя должно быть от 2 до 100 символов")
+    @Size(min = 2, max = 100, message = "Имя должно быть от 2    до 100 символов")
     private String email;
     @NotBlank(message = "Компания обязательна")
     private String company;
