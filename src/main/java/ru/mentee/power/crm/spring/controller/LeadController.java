@@ -34,8 +34,7 @@ public class LeadController {
                              BindingResult bindingResult,
                              Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("errors", bindingResult);
-            return "leads/create";
+            return "spring/leads/form";
         }
         leadService.save(lead);
         return "redirect:/leads";
@@ -65,8 +64,9 @@ public class LeadController {
                              BindingResult bindingResult,
                              Model model) {
         if (bindingResult.hasErrors()) {
-            return "spring/edit";
+            return "spring/leads/form";
         }
+        lead.setId(id);
         leadService.save(lead);
         return "redirect:/leads";
     }
