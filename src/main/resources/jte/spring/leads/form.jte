@@ -1,34 +1,28 @@
-@param ru.mentee.power.crm.model.Lead lead
-@param org.springframework.validation.BindingResult errors
+@import ru.mentee.power.crm.model.Lead
+@import org.springframework.validation.BindingResult
 @import ru.mentee.power.crm.model.LeadStatus
-<div class="mb-4">
-  <label for="email">Email</label>
-  <input type="email" name="email" value="${lead.email}"
-         class="${errors.hasFieldErrors("email") ? "border-red-500" : "border-gray-300"}">
-  @if(errors.hasFieldErrors("email"))
-    <p class="text-red-600 text-sm mt-1">${errors.getFieldError("email").defaultMessage}</p>
-  @endif
-</div>
 
-<div class="mb-4">
-  <label for="company">Компания</label>
-  <input type="text" name="company" value="${lead.company}"
-         class="${errors.hasFieldErrors("company") ? "border-red-500" : "border-gray-300"}">
-  @if(errors.hasFieldErrors("company"))
-    <p class="text-red-600 text-sm mt-1">${errors.getFieldError("company").defaultMessage}</p>
-  @endif
-</div>
+@param Lead lead
+@param BindingResult errors = null
 
-<div class="mb-4">
-  <label for="status">Статус</label>
-  <select name="status"
-          class="${errors.hasFieldErrors("status") ? "border-red-500" : "border-gray-300"}">
-    <option value="">-- Выберите --</option>
-    @for(ru.mentee.power.crm.model.LeadStatus s : T(ru.mentee.power.crm.model.LeadStatus).values())
-      <option value="${s}" selected="${lead != null && lead.status == s ? "selected" : null}">${s}</option>
-    @endfor
-  </select>
-  @if(errors.hasFieldErrors("status"))
-    <p class="text-red-600 text-sm mt-1">${errors.getFieldError("status").defaultMessage}</p>
-  @endif
-</div>
+<form method="post">
+    <div style="margin-bottom: 16px;">
+        <label>Email:</label>
+        <input type="email" name="email" value="${lead.getEmail()}">
+        @if(errors != null && errors.hasFieldErrors("email"))
+            <p style="color: red;">${errors.getFieldError("email").defaultMessage}</p>
+        @endif
+    </div>
+
+    <div style="margin-bottom: 16px;">
+        <label>Компания:</label>
+        <input type="text" name="company" value="${lead.getCompany()}">
+        @if(errors != null && errors.hasFieldErrors("company"))
+            <p style="color: red;">${errors.getFieldError("company").defaultMessage}</p>
+        @endif
+    </div>
+
+    <button type="submit" style="padding: 8px 16px; background: blue; color: white; border: none;">
+        Сохранить
+    </button>
+</form>
