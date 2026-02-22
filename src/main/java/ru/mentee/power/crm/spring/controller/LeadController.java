@@ -34,7 +34,8 @@ public class LeadController {
                              BindingResult bindingResult,
                              Model model) {
         if (bindingResult.hasErrors()) {
-            return "spring/leads/form";
+            model.addAttribute("errors", bindingResult);
+            return "leads/create";
         }
         leadService.save(lead);
         return "redirect:/leads";
@@ -59,18 +60,16 @@ public class LeadController {
     }
 
     @PostMapping("/leads/{id}")
-    public String updateLead(@PathVariable UUID id,
-                             @Valid @ModelAttribute("lead") Lead lead,
+    public String updateLead(@PathVariable UUID id,@Valid @ModelAttribute Lead lead,
                              BindingResult bindingResult,
                              Model model) {
         if (bindingResult.hasErrors()) {
-            return "spring/leads/form";
+            model.addAttribute("errors", bindingResult);
+            return "leads/create";
         }
-        lead.setId(id);
         leadService.save(lead);
         return "redirect:/leads";
     }
-
 
     @PostMapping("/leads/{id}/delete")
     public String deleteLead(@PathVariable UUID id) {

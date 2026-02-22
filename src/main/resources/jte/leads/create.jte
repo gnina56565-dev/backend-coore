@@ -25,7 +25,7 @@
                  id="email"
                  name="email"
                  value="${lead.getEmail()}"
-                 class='w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 border-gray-300'
+                 class='w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors != null && errors.hasFieldErrors("email") ? "border-red-500" : "border-gray-300"}'
                  placeholder="example@company.com" />
           @if(errors != null && errors.hasFieldErrors("email"))
             <p class="text-red-600 text-sm mt-1">${errors.getFieldError("email").getDefaultMessage()}</p>
@@ -39,7 +39,7 @@
                  id="company"
                  name="company"
                  value="${lead.getCompany()}"
-                 class='w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 border-gray-300'
+                 class='w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors != null && errors.hasFieldErrors("company") ? "border-red-500" : "border-gray-300"}'
                  placeholder="Company A" />
           @if(errors != null && errors.hasFieldErrors("company"))
             <p class="text-red-600 text-sm mt-1">${errors.getFieldError("company").getDefaultMessage()}</p>
@@ -50,7 +50,7 @@
         <div class="mb-4">
           <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Статус</label>
           <select id="status" name="status"
-                  class='w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 border-gray-300'>
+                  class='w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors != null && errors.hasFieldErrors("status") ? "border-red-500" : "border-gray-300"}'>
             <option value="">Выберите статус</option>
             @for(LeadStatus status : LeadStatus.values())
               <option
