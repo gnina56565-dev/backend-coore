@@ -60,16 +60,17 @@ public class LeadController {
     }
 
     @PostMapping("/leads/{id}")
-    public String updateLead(@PathVariable UUID id,@Valid @ModelAttribute Lead lead,
+    public String updateLead(@PathVariable UUID id,
+                             @Valid @ModelAttribute("lead") Lead lead,
                              BindingResult bindingResult,
                              Model model) {
         if (bindingResult.hasErrors()) {
-            model.addAttribute("errors", bindingResult);
-            return "leads/create";
+            return "spring/edit";
         }
         leadService.save(lead);
         return "redirect:/leads";
     }
+
 
     @PostMapping("/leads/{id}/delete")
     public String deleteLead(@PathVariable UUID id) {
