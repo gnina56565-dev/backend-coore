@@ -1,13 +1,24 @@
 package ru.mentee.power.crm.model;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
+
 import java.util.UUID;
 
 @Data
+
 public class Lead {
     private UUID id;
+    @NotBlank(message = "Email обязателен")
+    @Email(message = "Некорректный формат email")
+    @Size(min = 2, max = 100, message = "Имя должно быть от 2  до 100 символов")
     private String email;
+    @NotBlank(message = "Компания обязательна")
     private String company;
+    @NotNull(message = "Статус обязателен")
     private LeadStatus status;
 
     public Lead(UUID id, String email, String company, LeadStatus status) {
@@ -20,7 +31,6 @@ public class Lead {
     public Lead() {
     }
 
-    // === ДОБАВЬТЕ ЭТИ МЕТОДЫ ВРУЧНУЮ ===
     public UUID getId() {
         return id;
     }

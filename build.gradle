@@ -22,6 +22,8 @@ ext {
     assertjVersion = '3.26.3'
     lombokVersion = '1.18.40'
     springBootVersion = '3.5.10'
+    validationApiVersion = '3.1.0'
+    hibernateValidatorVersion = '8.0.2.Final'
 }
 
 dependencies {
@@ -41,6 +43,9 @@ dependencies {
     implementation 'gg.jte:jte-spring-boot-starter-3:3.1.16'
 
     testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
+
+    implementation "jakarta.validation:jakarta.validation-api:${validationApiVersion}"
+    implementation "org.hibernate.validator:hibernate-validator:${hibernateValidatorVersion}"
 }
 
 test {

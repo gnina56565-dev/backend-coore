@@ -121,4 +121,29 @@ class LeadControllerTest {
                 .andExpect(model().attribute("search", "test"))
                 .andExpect(model().attribute("status", "NEW"));
     }
+
+    @Test
+    void shouldNullCompany() throws Exception {
+        mockMvc.perform(post("/leads/new")
+                        .param("email", "test@test.com"))
+                .andExpect(model().attributeHasFieldErrors("lead", "company"));
+    }
+    @Test
+    void shouldInvalidEmail() throws Exception {
+        mockMvc.perform(post("/leads/new")
+                        .param("email", "invalidemail")
+                        .param("company", "")
+                        .param("status", "NEW"))
+                .andExpect(model().attributeHasFieldErrorCode("lead", "email", "Email"));
+    }
+    @Test
+    void createLead_withValidData_shouldSaveAndRedirect() throws Exception {
+        mockMvc.perform(post("/leads/new")
+                        .param("name", "John")
+                        .param("email", "john@test.com")
+                        .param("company", "Test")
+                        .param("status", "NEW"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/leads"));
+    }
 }

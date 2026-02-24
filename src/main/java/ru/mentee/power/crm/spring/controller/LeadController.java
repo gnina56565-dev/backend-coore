@@ -1,9 +1,11 @@
 package ru.mentee.power.crm.spring.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,15 +28,24 @@ public class LeadController {
 
     @GetMapping("/leads/new")
     public String showCreateForm(Model model) {
-        model.addAttribute("lead", new Lead(null, "", "", LeadStatus.NEW));
+        if (!model.containsAttribute("lead")) {
+            model.addAttribute("lead", new Lead());
+        }
         return "leads/create";
     }
 
-    @PostMapping("/leads")
-    public String createLead(@ModelAttribute Lead lead) {
-        leadService.addLead(lead.getEmail(), lead.getCompany(), lead.getStatus());
+    @PostMapping("/leads/new")
+    public String createLead(@Valid @ModelAttribute("lead") Lead lead,
+                             BindingResult bindingResult,
+                             Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("errors", bindingResult);
+            return "leads/create";
+        }
+        leadService.save(lead);
         return "redirect:/leads";
     }
+
 
     @GetMapping("/")
     @ResponseBody
@@ -54,8 +65,14 @@ public class LeadController {
     }
 
     @PostMapping("/leads/{id}")
-    public String updateLead(@PathVariable UUID id, @ModelAttribute Lead lead) {
-        leadService.update(id, lead);
+    public String updateLead(@PathVariable UUID id, @Valid @ModelAttribute Lead lead,
+                             BindingResult bindingResult,
+                             Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("errors", bindingResult);
+            return "leads/create";
+        }
+        leadService.save(lead);
         return "redirect:/leads";
     }
 
@@ -78,6 +95,9 @@ public class LeadController {
         model.addAttribute("leads", leads);
         model.addAttribute("search", search != null ? search : "");
         model.addAttribute("status", status != null ? status : "");
+        model.addAttribute("currentFilter", status != null && !status.isBlank()
+                ? LeadStatus.valueOf(status.toUpperCase())
+                : null);
         return "spring/list";
     }
 }

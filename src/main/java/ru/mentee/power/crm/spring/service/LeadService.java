@@ -95,8 +95,14 @@ public class LeadService {
                     if (status == null || status.isBlank()) {
                         return true;
                     }
-                    return lead.getStatus().equals(status);
+                    return lead.getStatus() != null &&
+                            lead.getStatus().name().equalsIgnoreCase(status); //для исправления работы listLeads
                 })
                 .collect(Collectors.toList());
     }
+
+    public void save(Lead lead) {
+        repository.save(lead);
+    }
+
 }

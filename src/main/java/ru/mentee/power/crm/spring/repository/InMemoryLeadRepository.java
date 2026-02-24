@@ -28,6 +28,9 @@ public class InMemoryLeadRepository implements LeadRepository {
 
     @Override
     public Lead save(Lead lead) {
+        if (lead.getId() == null) {
+            lead.setId(UUID.randomUUID());
+        }
         storage.put(lead.getId(), lead);
         return lead;
     }
