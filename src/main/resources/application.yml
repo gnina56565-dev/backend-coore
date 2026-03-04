@@ -7,6 +7,14 @@ gg:
     templateLocation: src/main/resources/jte
 
 spring:
+  application:
+    name: m-crm
   jte:
     enabled: true
     content-type: text/html
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
