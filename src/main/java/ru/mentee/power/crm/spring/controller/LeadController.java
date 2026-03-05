@@ -42,7 +42,8 @@ public class LeadController {
             model.addAttribute("errors", bindingResult);
             return "leads/create";
         }
-        leadService.save(lead);
+
+        leadService.addLead(lead.getEmail(), lead.getCompany(), lead.getStatus());
         return "redirect:/leads";
     }
 

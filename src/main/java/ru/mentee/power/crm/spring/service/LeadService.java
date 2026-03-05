@@ -1,6 +1,6 @@
 package ru.mentee.power.crm.spring.service;
 
-import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -24,23 +24,23 @@ public class LeadService {
         log.info("LeadService constructor called");
     }
 
-    @PostConstruct
-    void init() {
-        log.info("LeadService @PostConstruct init() called - Bean lifecycle phase");
-    }
-
+//    @PostConstruct
+//    void init() {
+//        log.info("LeadService @PostConstruct init() called - Bean lifecycle phase");
+//    }
+    @Transactional
     public Lead addLead(String email, String company, LeadStatus status) {
         Optional<Lead> existing = repository.findByEmail(email);
         if (existing.isPresent()) {
             throw new IllegalStateException("Lead with email already exists: " + email);
         }
-        Lead lead = new Lead(
-                UUID.randomUUID(),
-                email,
-                company,
-                status
-        );
-        return repository.save(lead);
+        Lead lead = new Lead(email, company, status);
+
+        log.info("Saving lead: {}", lead);
+        Lead saved = repository.save(lead);
+        log.info("Saved lead with ID: {}", saved.getId());
+
+        return saved;
     }
 
     public List<Lead> findAll() {
@@ -101,6 +101,7 @@ public class LeadService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void save(Lead lead) {
         repository.save(lead);
     }

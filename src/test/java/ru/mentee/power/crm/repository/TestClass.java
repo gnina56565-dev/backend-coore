@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import ru.mentee.power.crm.spring.Application;
+import ru.mentee.power.crm.Application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

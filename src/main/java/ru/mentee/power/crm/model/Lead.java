@@ -1,6 +1,13 @@
 package ru.mentee.power.crm.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,10 +34,16 @@ public class Lead {
     @Column(nullable = false, unique = true, length = 255)
     private String email;
     @NotBlank(message = "Компания обязательна")
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String company;
     @NotNull(message = "Статус обязателен")
-    @Column(nullable = false, unique = true)
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private LeadStatus status;
 
+    public Lead(String email, String company, LeadStatus status) {
+        this.email = email;
+        this.company = company;
+        this.status = status;
+    }
 }

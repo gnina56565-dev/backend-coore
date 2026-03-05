@@ -1,25 +1,16 @@
--- Таблица Leads (потенциальные клиенты)
+-- Таблица Leads
 CREATE TABLE IF NOT EXISTS leads (
     id UUID PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
-    phone VARCHAR(50),
-    company VARCHAR(255),
-    status VARCHAR(50) NOT NULL,
-    source VARCHAR(100),
-    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE,
-    created_by UUID,
-    assigned_to UUID
+    company VARCHAR(255) NOT NULL,
+    status VARCHAR(50) NOT NULL
 );
 
--- Индекс для быстрого поиска по email
+-- Индексы Leads (должны быть только здесь)
 CREATE INDEX IF NOT EXISTS idx_leads_email ON leads(email);
-
--- Индекс для фильтрации по статусу
 CREATE INDEX IF NOT EXISTS idx_leads_status ON leads(status);
 
--- Таблица Contacts (контактные лица)
+-- Таблица Contacts
 CREATE TABLE IF NOT EXISTS contacts (
     id UUID PRIMARY KEY,
     lead_id UUID REFERENCES leads(id) ON DELETE CASCADE,
@@ -33,10 +24,10 @@ CREATE TABLE IF NOT EXISTS contacts (
     updated_at TIMESTAMP WITH TIME ZONE
 );
 
--- Индекс для быстрого поиска контактов по lead_id
+-- Индексы Contacts
 CREATE INDEX IF NOT EXISTS idx_contacts_lead_id ON contacts(lead_id);
 
--- Таблица Deals (сделки)
+-- Таблица Deals
 CREATE TABLE IF NOT EXISTS deals (
     id UUID PRIMARY KEY,
     lead_id UUID REFERENCES leads(id) ON DELETE SET NULL,
@@ -52,6 +43,6 @@ CREATE TABLE IF NOT EXISTS deals (
     assigned_to UUID
 );
 
--- Индексы для deals
+-- Индексы Deals
 CREATE INDEX IF NOT EXISTS idx_deals_lead_id ON deals(lead_id);
 CREATE INDEX IF NOT EXISTS idx_deals_stage ON deals(stage);
