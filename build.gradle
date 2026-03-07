@@ -74,12 +74,8 @@ sourceSets {
     }
 }
 
-bootRun {
-    mainClass = 'ru.mentee.power.crm.Application'
-    jvmArgs = ["-Dspring.profiles.active=dev"]
-}
 application {
-    mainClass = 'ru.mentee.power.crm.Main'
+    mainClass = 'ru.mentee.power.crm.Application'
 }
 
 

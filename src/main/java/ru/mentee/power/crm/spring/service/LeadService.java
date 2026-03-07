@@ -1,6 +1,6 @@
 package ru.mentee.power.crm.spring.service;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -24,10 +24,6 @@ public class LeadService {
         log.info("LeadService constructor called");
     }
 
-//    @PostConstruct
-//    void init() {
-//        log.info("LeadService @PostConstruct init() called - Bean lifecycle phase");
-//    }
     @Transactional
     public Lead addLead(String email, String company, LeadStatus status) {
         Optional<Lead> existing = repository.findByEmail(email);
