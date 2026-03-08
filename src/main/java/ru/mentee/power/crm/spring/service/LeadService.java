@@ -1,13 +1,13 @@
 package ru.mentee.power.crm.spring.service;
 
-import jakarta.annotation.PostConstruct;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.spring.repository.LeadRepository;
+import ru.mentee.power.crm.repository.LeadRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,23 +24,19 @@ public class LeadService {
         log.info("LeadService constructor called");
     }
 
-    @PostConstruct
-    void init() {
-        log.info("LeadService @PostConstruct init() called - Bean lifecycle phase");
-    }
-
+    @Transactional
     public Lead addLead(String email, String company, LeadStatus status) {
-        Optional<Lead> existing = repository.findByEmail(email);
+        Optional<Lead> existing = repository.findByEmailNative(email);
         if (existing.isPresent()) {
             throw new IllegalStateException("Lead with email already exists: " + email);
         }
-        Lead lead = new Lead(
-                UUID.randomUUID(),
-                email,
-                company,
-                status
-        );
-        return repository.save(lead);
+        Lead lead = new Lead(email, company, status);
+
+        log.info("Saving lead: {}", lead);
+        Lead saved = repository.save(lead);
+        log.info("Saved lead with ID: {}", saved.getId());
+
+        return saved;
     }
 
     public List<Lead> findAll() {
@@ -58,7 +54,7 @@ public class LeadService {
     }
 
     public Optional<Lead> findByEmail(String email) {
-        return repository.findByEmail(email);
+        return repository.findByEmailNative(email);
     }
 
     public Lead update(UUID id, Lead updatedLead) {
@@ -78,7 +74,7 @@ public class LeadService {
                         HttpStatus.NOT_FOUND,
                         "Lead not found with id: " + id
                 ));
-        repository.delete(id);
+        repository.deleteById(id);
     }
 
     public List<Lead> findLeads(String search, String status) {
@@ -101,6 +97,7 @@ public class LeadService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void save(Lead lead) {
         repository.save(lead);
     }

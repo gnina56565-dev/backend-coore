@@ -42,7 +42,7 @@ dependencies {
     implementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
     implementation 'gg.jte:jte-spring-boot-starter-3:3.1.16'
 
-    testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
     implementation "jakarta.validation:jakarta.validation-api:${validationApiVersion}"
     implementation "org.hibernate.validator:hibernate-validator:${hibernateValidatorVersion}"
@@ -74,11 +74,8 @@ sourceSets {
     }
 }
 
-bootRun {
-    mainClass = 'ru.mentee.power.crm.spring.Application'
-}
 application {
-    mainClass = 'ru.mentee.power.crm.Main'
+    mainClass = 'ru.mentee.power.crm.Application'
 }
 
 

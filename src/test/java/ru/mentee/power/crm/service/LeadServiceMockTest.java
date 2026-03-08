@@ -7,7 +7,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.spring.repository.LeadRepository;
+import ru.mentee.power.crm.repository.LeadRepository;
 import ru.mentee.power.crm.spring.service.LeadService;
 
 import java.util.Optional;
@@ -38,7 +38,7 @@ class LeadServiceMockTest {
 
     @Test
     void shouldCallRepositorySave_whenAddingNewLead() {
-        when(mockRepository.findByEmail(anyString()))
+        when(mockRepository.findByEmailNative(anyString()))
                 .thenReturn(Optional.empty());
 
         when(mockRepository.save(any(Lead.class)))
@@ -52,39 +52,32 @@ class LeadServiceMockTest {
     }
     @Test
     void shouldNotCallSave_whenEmailExists() {
-        // Given: Repository возвращает существующий Lead
         Lead existingLead = new Lead(
                 UUID.randomUUID(),
                 "existing@example.com",
                 "Existing Company",
                 LeadStatus.CONTACTED
         );
-        when(mockRepository.findByEmail("existing@example.com"))
+        when(mockRepository.findByEmailNative("existing@example.com"))
                 .thenReturn(Optional.of(existingLead));
 
-        // When/Then: ожидаем исключение
         assertThatThrownBy(() ->
                 service.addLead("existing@example.com", "New Company", LeadStatus.NEW)
         ).isInstanceOf(IllegalStateException.class);
-
-        // Then: save() НЕ должен быть вызван
         verify(mockRepository, never()).save(any(Lead.class));
     }
 
     @Test
     void shouldCallFindByEmail_beforeSave() {
-        // Given
-        when(mockRepository.findByEmail(anyString()))
+        when(mockRepository.findByEmailNative(anyString()))
                 .thenReturn(Optional.empty());
         when(mockRepository.save(any(Lead.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        // When
         service.addLead("test@example.com", "Company", LeadStatus.NEW);
 
-        // Then: проверяем порядок вызовов
         var inOrder = inOrder(mockRepository);
-        inOrder.verify(mockRepository).findByEmail("test@example.com");
+        inOrder.verify(mockRepository).findByEmailNative("test@example.com");
         inOrder.verify(mockRepository).save(any(Lead.class));
     }
 }
