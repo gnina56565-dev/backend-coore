@@ -3,7 +3,9 @@ CREATE TABLE IF NOT EXISTS leads (
     id UUID PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     company VARCHAR(255) NOT NULL,
-    status VARCHAR(50) NOT NULL
+    status VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
 );
 
 -- Индексы Leads (должны быть только здесь)
@@ -46,3 +48,4 @@ CREATE TABLE IF NOT EXISTS deals (
 -- Индексы Deals
 CREATE INDEX IF NOT EXISTS idx_deals_lead_id ON deals(lead_id);
 CREATE INDEX IF NOT EXISTS idx_deals_stage ON deals(stage);
+

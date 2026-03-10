@@ -1,9 +1,14 @@
 package ru.mentee.power.crm.spring.service;
 
-import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
@@ -15,14 +20,10 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class LeadService {
     private final LeadRepository repository;
-
-    public LeadService(LeadRepository repository) {
-        this.repository = repository;
-        log.info("LeadService constructor called");
-    }
 
     @Transactional
     public Lead addLead(String email, String company, LeadStatus status) {
@@ -53,9 +54,6 @@ public class LeadService {
         return repository.findById(id);
     }
 
-    public Optional<Lead> findByEmail(String email) {
-        return repository.findByEmailNative(email);
-    }
 
     public Lead update(UUID id, Lead updatedLead) {
         Lead newLead = repository.findById(id)
@@ -101,5 +99,37 @@ public class LeadService {
     public void save(Lead lead) {
         repository.save(lead);
     }
+    public Optional<Lead> findByEmail(String email) {
+        return repository.findByEmail(email);
+    }
 
+    public List<Lead> findByStatuses(LeadStatus... statuses) {
+        return repository.findByStatusIn(List.of(statuses));
+    }
+
+    public Page<Lead> getFirstPage(int pageSize) {
+        PageRequest pageRequest = PageRequest.of(
+                0,
+                pageSize,
+                Sort.by("createdAt").descending()
+        );
+        return repository.findAll(pageRequest);
+    }
+
+    public Page<Lead> searchByCompany(String company, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return repository.findByCompany(company, pageable);
+    }
+
+    @Transactional
+    public int convertNewToContacted() {
+        int updated = repository.updateStatusBulk(LeadStatus.NEW, LeadStatus.CONTACTED);
+        System.out.printf("Converted %d leads from NEW to CONTACTED%n", updated);
+        return updated;
+    }
+
+     @Transactional
+     public int archiveOldLeads(LeadStatus status) {
+       return repository.deleteByStatusBulk(status);
+     }
 }
