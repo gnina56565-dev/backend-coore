@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -40,8 +41,17 @@ public class Lead {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private LeadStatus status;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     public Lead(String email, String company, LeadStatus status) {
+        this.email = email;
+        this.company = company;
+        this.status = status;
+    }
+
+    public Lead(UUID uuid, String email, String company, LeadStatus status) {
+        this.id = uuid;
         this.email = email;
         this.company = company;
         this.status = status;
