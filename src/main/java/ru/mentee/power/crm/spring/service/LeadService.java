@@ -150,7 +150,7 @@ public class LeadService {
     }
     @Transactional
     public void processLeads(List<UUID> ids) {
-        for (UUID id : ids){
+        for (UUID id : ids) {
             leadProcessor.processSingleLead(id);
         }
     }

@@ -14,7 +14,6 @@ import ru.mentee.power.crm.repository.LeadRepository;
 import ru.mentee.power.crm.spring.repository.DealRepository;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Slf4j
@@ -69,14 +68,16 @@ public class LeadProcessor {
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void methodReadCommitted() {
         logTx("READ_COMMITTED");
-        Lead lead = new Lead("read-committed+" + System.nanoTime() + "@test.com", "Read Committed Corp", LeadStatus.NEW);
+        Lead lead = new Lead("read-committed+" + System.nanoTime() + "@test.com",
+                "Read Committed Corp", LeadStatus.NEW);
         leadRepository.save(lead);
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void methodRepeatableRead() {
         logTx("REPEATABLE_READ");
-        Lead lead = new Lead("repeatable-read+" + System.nanoTime() + "@test.com", "Repeatable Read Corp", LeadStatus.NEW);
+        Lead lead = new Lead("repeatable-read+" + System.nanoTime() + "@test.com",
+                "Repeatable Read Corp", LeadStatus.NEW);
         leadRepository.save(lead);
     }
 }
