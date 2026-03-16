@@ -7,13 +7,11 @@ import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-import ru.mentee.power.crm.domain.Deal;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadRepository;
 import ru.mentee.power.crm.spring.repository.DealRepository;
 
-import java.math.BigDecimal;
 import java.util.UUID;
 
 @Slf4j
@@ -23,22 +21,6 @@ public class LeadProcessor {
     private final LeadRepository leadRepository;
     private final DealRepository dealRepository;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void processSingleLead(UUID leadId) {
-        Lead lead = leadRepository.findById(leadId)
-                .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + leadId));
-
-        if ("Bad".equals(lead.getCompany())) {
-            throw new RuntimeException("Failure while processing bad lead: " + leadId);
-        }
-
-        if (lead.getEmail() == null || lead.getEmail().isBlank()) {
-            throw new RuntimeException("Email required for deal creation: " + leadId);
-        }
-
-        Deal deal = new Deal(leadId, BigDecimal.ZERO);
-        dealRepository.save(deal);
-    }
     private void logTx(String label) {
         boolean active = TransactionSynchronizationManager.isActualTransactionActive();
         String name = TransactionSynchronizationManager.getCurrentTransactionName();
@@ -49,6 +31,9 @@ public class LeadProcessor {
         logTx("REQUIRED");
         Lead lead = new Lead("required+" + System.nanoTime() + "@test.com", "Required Corp", LeadStatus.NEW);
         leadRepository.save(lead);
+        if (Boolean.parseBoolean(System.getProperty("test.fail.required", "false"))) {
+            throw new RuntimeException("Forced rollback in REQUIRED");
+        }
     }
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -78,6 +63,17 @@ public class LeadProcessor {
         logTx("REPEATABLE_READ");
         Lead lead = new Lead("repeatable-read+" + System.nanoTime() + "@test.com",
                 "Repeatable Read Corp", LeadStatus.NEW);
+        leadRepository.save(lead);
+    }
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void processSingleLead(UUID leadId) {
+        Lead lead = leadRepository.findById(leadId)
+                .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + leadId));
+
+        if (lead.getEmail() != null && lead.getEmail().contains("throw-exception")) {
+            throw new RuntimeException("Test failure for lead: " + leadId);
+        }
+        lead.setStatus(LeadStatus.CONTACTED);
         leadRepository.save(lead);
     }
 }

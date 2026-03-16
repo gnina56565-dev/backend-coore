@@ -8,15 +8,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.domain.Deal;
+import ru.mentee.power.crm.exception.IllegalLeadStateException;
+import ru.mentee.power.crm.model.CreateDealRequest;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadRepository;
 import ru.mentee.power.crm.spring.repository.DealRepository;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -141,17 +143,35 @@ public class LeadService {
     }
 
     @Transactional
-    public Deal convertLeadToDeal(UUID leadId, BigDecimal amount) {
-        leadRepository.findById(leadId)
+    public Deal convertLeadToDeal(UUID leadId, CreateDealRequest request) {
+        Lead lead = leadRepository.findById(leadId)
                 .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + leadId));
+        if (lead.getStatus() != LeadStatus.QUALIFIED) {
+            throw new IllegalLeadStateException(leadId, lead.getStatus());
+        }
+        Deal newDeal = new Deal(leadId, request.getAmount());
+        Deal savedDeal = dealRepository.save(newDeal);
 
-        Deal newDeal = new Deal(leadId, amount);
-        return dealRepository.save(newDeal);
+        lead.setStatus(LeadStatus.CONTACTED);
+        leadRepository.save(lead);
+        return savedDeal;
     }
-    @Transactional
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void processLeads(List<UUID> ids) {
         for (UUID id : ids) {
             leadProcessor.processSingleLead(id);
         }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void processSingleLead(UUID leadId) {
+        Lead lead = leadRepository.findById(leadId)
+                .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + leadId));
+        if (lead.getEmail().contains("throw-exception")) {
+            throw new RuntimeException("Simulated error for lead: " + leadId);
+        }
+        lead.setStatus(LeadStatus.CONTACTED);
+        leadRepository.save(lead);
     }
 }
