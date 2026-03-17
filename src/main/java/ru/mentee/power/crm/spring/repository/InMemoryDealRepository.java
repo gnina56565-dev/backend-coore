@@ -14,12 +14,18 @@ import java.util.stream.Collectors;
 
 @Repository
 public class InMemoryDealRepository implements DealRepository {
-    private final Map<UUID, Deal> storage = new ConcurrentHashMap<>();
 
     @Override
-    public void save(Deal deal) {
+    public Deal save(Deal deal) {
+        if (deal.getId() == null) {
+            deal.setId(UUID.randomUUID());
+        }
         storage.put(deal.getId(), deal);
+        return deal;
     }
+
+    private final Map<UUID, Deal> storage = new ConcurrentHashMap<>();
+
 
     @Override
     public Optional<Deal> findById(UUID id) {

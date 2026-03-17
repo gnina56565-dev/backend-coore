@@ -1,6 +1,7 @@
 package ru.mentee.power.crm.spring.service;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.mentee.power.crm.domain.Deal;
 import ru.mentee.power.crm.domain.DealStatus;
 import ru.mentee.power.crm.spring.repository.DealRepository;
@@ -21,7 +22,7 @@ public class DealService {
         this.dealRepository = dealRepository;
         this.leadRepository = leadRepository;
     }
-
+    @Transactional
     public Deal convertLeadToDeal(UUID leadId, BigDecimal amount) {
         leadRepository.findById(leadId)
                 .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + leadId));

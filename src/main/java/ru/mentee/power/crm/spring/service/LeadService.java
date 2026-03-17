@@ -8,11 +8,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import ru.mentee.power.crm.domain.Deal;
+import ru.mentee.power.crm.exception.IllegalLeadStateException;
+import ru.mentee.power.crm.model.CreateDealRequest;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadRepository;
+import ru.mentee.power.crm.spring.repository.DealRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,40 +28,42 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class LeadService {
-    private final LeadRepository repository;
+
+    private final LeadRepository leadRepository;
+    private final DealRepository dealRepository;
+    private final LeadProcessor leadProcessor;
 
     @Transactional
     public Lead addLead(String email, String company, LeadStatus status) {
-        Optional<Lead> existing = repository.findByEmailNative(email);
+        Optional<Lead> existing = leadRepository.findByEmailNative(email);
         if (existing.isPresent()) {
             throw new IllegalStateException("Lead with email already exists: " + email);
         }
         Lead lead = new Lead(email, company, status);
 
         log.info("Saving lead: {}", lead);
-        Lead saved = repository.save(lead);
+        Lead saved = leadRepository.save(lead);
         log.info("Saved lead with ID: {}", saved.getId());
 
         return saved;
     }
 
     public List<Lead> findAll() {
-        return repository.findAll();
+        return leadRepository.findAll();
     }
 
     public List<Lead> findByStatus(LeadStatus status) {
-        return repository.findAll().stream()
+        return leadRepository.findAll().stream()
                 .filter(lead -> lead.getStatus().equals(status))
                 .collect(Collectors.toList());
     }
 
     public Optional<Lead> findById(UUID id) {
-        return repository.findById(id);
+        return leadRepository.findById(id);
     }
 
-
     public Lead update(UUID id, Lead updatedLead) {
-        Lead newLead = repository.findById(id)
+        Lead newLead = leadRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Lead not found with id: " + id
@@ -64,19 +71,20 @@ public class LeadService {
         newLead.setEmail(updatedLead.getEmail());
         newLead.setCompany(updatedLead.getCompany());
         newLead.setStatus(updatedLead.getStatus());
-        return repository.save(newLead);
+        return leadRepository.save(newLead);
     }
+
     public void delete(UUID id) {
-        repository.findById(id)
+        leadRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         "Lead not found with id: " + id
                 ));
-        repository.deleteById(id);
+        leadRepository.deleteById(id);
     }
 
     public List<Lead> findLeads(String search, String status) {
-        List<Lead> leads = repository.findAll();
+        List<Lead> leads = leadRepository.findAll();
         return leads.stream()
                 .filter(lead -> {
                     if (search == null || search.isBlank()) {
@@ -90,21 +98,22 @@ public class LeadService {
                         return true;
                     }
                     return lead.getStatus() != null &&
-                            lead.getStatus().name().equalsIgnoreCase(status); //для исправления работы listLeads
+                            lead.getStatus().name().equalsIgnoreCase(status);
                 })
                 .collect(Collectors.toList());
     }
 
     @Transactional
     public void save(Lead lead) {
-        repository.save(lead);
+        leadRepository.save(lead);
     }
+
     public Optional<Lead> findByEmail(String email) {
-        return repository.findByEmail(email);
+        return leadRepository.findByEmail(email);
     }
 
     public List<Lead> findByStatuses(LeadStatus... statuses) {
-        return repository.findByStatusIn(List.of(statuses));
+        return leadRepository.findByStatusIn(List.of(statuses));
     }
 
     public Page<Lead> getFirstPage(int pageSize) {
@@ -113,23 +122,56 @@ public class LeadService {
                 pageSize,
                 Sort.by("createdAt").descending()
         );
-        return repository.findAll(pageRequest);
+        return leadRepository.findAll(pageRequest);
     }
 
     public Page<Lead> searchByCompany(String company, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
-        return repository.findByCompany(company, pageable);
+        return leadRepository.findByCompany(company, pageable);
     }
 
     @Transactional
     public int convertNewToContacted() {
-        int updated = repository.updateStatusBulk(LeadStatus.NEW, LeadStatus.CONTACTED);
+        int updated = leadRepository.updateStatusBulk(LeadStatus.NEW, LeadStatus.CONTACTED);
         System.out.printf("Converted %d leads from NEW to CONTACTED%n", updated);
         return updated;
     }
 
-     @Transactional
-     public int archiveOldLeads(LeadStatus status) {
-       return repository.deleteByStatusBulk(status);
-     }
+    @Transactional
+    public int archiveOldLeads(LeadStatus status) {
+        return leadRepository.deleteByStatusBulk(status);
+    }
+
+    @Transactional
+    public Deal convertLeadToDeal(UUID leadId, CreateDealRequest request) {
+        Lead lead = leadRepository.findById(leadId)
+                .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + leadId));
+        if (lead.getStatus() != LeadStatus.QUALIFIED) {
+            throw new IllegalLeadStateException(leadId, lead.getStatus());
+        }
+        Deal newDeal = new Deal(leadId, request.getAmount());
+        Deal savedDeal = dealRepository.save(newDeal);
+
+        lead.setStatus(LeadStatus.CONTACTED);
+        leadRepository.save(lead);
+        return savedDeal;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void processLeads(List<UUID> ids) {
+        for (UUID id : ids) {
+            leadProcessor.processSingleLead(id);
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void processSingleLead(UUID leadId) {
+        Lead lead = leadRepository.findById(leadId)
+                .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + leadId));
+        if (lead.getEmail().contains("throw-exception")) {
+            throw new RuntimeException("Simulated error for lead: " + leadId);
+        }
+        lead.setStatus(LeadStatus.CONTACTED);
+        leadRepository.save(lead);
+    }
 }

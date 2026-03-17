@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class Deal {
-    private final UUID id;
+    private UUID id;
     private final UUID leadId;
     private final BigDecimal amount;
     private DealStatus status;
@@ -70,5 +70,9 @@ public class Deal {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public void setId(UUID uuid) {
+        this.id = uuid;
     }
 }
