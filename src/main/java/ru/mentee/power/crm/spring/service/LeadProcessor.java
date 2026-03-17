@@ -39,8 +39,11 @@ public class LeadProcessor {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void methodRequiredNew() {
         logTx("REQUIRES_NEW");
-        Lead lead = new Lead("requires-new+" + System.nanoTime() + "@test.com", "Requires New Corp", LeadStatus.NEW);
+        Lead lead = new Lead("required-new+" + System.nanoTime() + "@test.com", "Requires New Corp", LeadStatus.NEW);
         leadRepository.save(lead);
+        if (Boolean.parseBoolean(System.getProperty("test.fail.required-new", "false"))) {
+            throw new RuntimeException("Forced rollback in REQUIRED_NEW");
+        }
     }
 
     @Transactional(propagation = Propagation.MANDATORY)
@@ -64,6 +67,9 @@ public class LeadProcessor {
         Lead lead = new Lead("repeatable-read+" + System.nanoTime() + "@test.com",
                 "Repeatable Read Corp", LeadStatus.NEW);
         leadRepository.save(lead);
+        if (Boolean.parseBoolean(System.getProperty("test.fail.repeatable-read", "false"))) {
+            throw new RuntimeException("Forced rollback in REPEATABLE-READ");
+        }
     }
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void processSingleLead(UUID leadId) {
