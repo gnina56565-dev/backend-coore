@@ -1,20 +1,11 @@
 package ru.mentee.power.crm.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -22,9 +13,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "leads")
 @Data
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-
 public class Lead {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -32,7 +22,7 @@ public class Lead {
     @NotBlank(message = "Email обязателен")
     @Email(message = "Некорректный формат email")
     @Size(min = 2, max = 100, message = "Имя должно быть от 2  до 100 символов")
-    @Column(nullable = false, unique = true, length = 255)
+    @Column(name = "email", nullable = false, unique = true, length = 255)
     private String email;
     @NotBlank(message = "Компания обязательна")
     @Column(nullable = false)
@@ -41,6 +31,10 @@ public class Lead {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private LeadStatus status;
+    @Version
+    @Column(name = "version", nullable = false)
+    @Setter(AccessLevel.NONE)
+    private Long version;
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
@@ -55,5 +49,10 @@ public class Lead {
         this.email = email;
         this.company = company;
         this.status = status;
+    }
+    public Lead(String email, LeadStatus status) {
+        this.email = email;
+        this.status = status;
+        this.createdAt = LocalDateTime.now();
     }
 }

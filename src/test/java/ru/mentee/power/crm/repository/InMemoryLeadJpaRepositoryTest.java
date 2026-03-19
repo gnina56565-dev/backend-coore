@@ -12,7 +12,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class InMemoryLeadRepositoryTest {
+class InMemoryLeadJpaRepositoryTest {
 
     private InMemoryLeadRepository repository;
     private Lead lead1;

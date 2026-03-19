@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.repository.LeadRepository;
+import ru.mentee.power.crm.repository.LeadJpaRepository;
 import ru.mentee.power.crm.spring.service.LeadService;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,14 +20,14 @@ class LeadServiceTest {
     private LeadService service;
 
     @Autowired
-    private LeadRepository repository;
+    private LeadJpaRepository repository;
 
     @BeforeEach
     void setUp() {
         repository.deleteAll();
 
         for (int i = 1; i <= 3; i++) {
-            Lead lead = new Lead();
+            Lead lead = new Lead("lead" + i + "@example.com", "Company " + i, LeadStatus.NEW);
             lead.setEmail("lead" + i + "@example.com");
             lead.setCompany("Company " + i);
             lead.setStatus(LeadStatus.NEW);
