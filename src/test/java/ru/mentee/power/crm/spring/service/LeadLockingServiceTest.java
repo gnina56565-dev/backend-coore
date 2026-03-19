@@ -4,21 +4,18 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.test.context.ActiveProfiles;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadJpaRepository;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ActiveProfiles("test")
 @SpringBootTest
 class LeadLockingServiceTest {
 
@@ -30,19 +27,17 @@ class LeadLockingServiceTest {
 
     @Test
     void shouldPreventLostUpdate_whenPessimisticLockUsed() throws Exception {
-        // Given: Lead с начальным статусом
-        Lead lead = new Lead("concurrent@test.com", LeadStatus.NEW);
+        Lead lead = new Lead("concurrent@test.com", "TestComp", LeadStatus.NEW);
         lead = leadRepository.save(lead);
         UUID leadId = lead.getId();
 
-        // When: Два потока одновременно обновляют Lead с pessimistic lock
         ExecutorService executor = Executors.newFixedThreadPool(2);
 
         CountDownLatch startLatch = new CountDownLatch(1);
         CountDownLatch doneLatch = new CountDownLatch(2);
 
         Future<LeadStatus> task1 = executor.submit(() -> {
-            startLatch.await(); // Синхронизируем старт
+            startLatch.await();
             Lead updated = leadLockingService.convertLeadToDealWithLock(leadId, LeadStatus.CONTACTED);
             doneLatch.countDown();
             return updated.getStatus();
@@ -55,10 +50,9 @@ class LeadLockingServiceTest {
             return updated.getStatus();
         });
 
-        startLatch.countDown(); // Запускаем оба потока одновременно
-        doneLatch.await(10, TimeUnit.SECONDS); // Ждём завершения
+        startLatch.countDown();
+        doneLatch.await(10, TimeUnit.SECONDS);
 
-        // Then: Оба обновления успешны, вторая транзакция ждала первую
         LeadStatus status1 = task1.get();
         LeadStatus status2 = task2.get();
 
@@ -74,12 +68,10 @@ class LeadLockingServiceTest {
 
     @Test
     void shouldThrowOptimisticLockException_whenConcurrentUpdateWithoutLock() throws Exception {
-        // Given: Lead с optimistic locking через @Version
-        Lead lead = new Lead("optimistic@test.com", LeadStatus.NEW);
+        Lead lead = new Lead("optimistic@test.com", "TestComp",  LeadStatus.NEW);
         lead = leadRepository.save(lead);
         UUID leadId = lead.getId();
 
-        // When: Два потока одновременно обновляют БЕЗ pessimistic lock
         ExecutorService executor = Executors.newFixedThreadPool(2);
 
         CountDownLatch startLatch = new CountDownLatch(1);
@@ -92,20 +84,18 @@ class LeadLockingServiceTest {
 
         Future<?> task2 = executor.submit(() -> {
             startLatch.await();
-            Thread.sleep(50); // Небольшая задержка чтобы первая транзакция стартовала
+            Thread.sleep(50);
             leadLockingService.updateLeadStatusOptimistic(leadId, LeadStatus.QUALIFIED);
             return null;
         });
 
         startLatch.countDown();
 
-        // Then: Одна транзакция успешна, вторая выбрасывает OptimisticLockException
         boolean exceptionThrown = false;
         try {
             task1.get(5, TimeUnit.SECONDS);
             task2.get(5, TimeUnit.SECONDS);
         } catch (ExecutionException e) {
-            // Одна из транзакций должна выбросить OptimisticLockException
             assertThat(e.getCause())
                     .isInstanceOfAny(ObjectOptimisticLockingFailureException.class);
             exceptionThrown = true;
@@ -121,9 +111,8 @@ class LeadLockingServiceTest {
         Lead leadB = leadRepository.save(new Lead("b@test.com", "CompanyB", LeadStatus.NEW));
 
         List<UUID> order1 = List.of(leadA.getId(), leadB.getId());
-        List<UUID> order2 = List.of(leadB.getId(), leadA.getId()); // Обратный порядок
+        List<UUID> order2 = List.of(leadB.getId(), leadA.getId());
 
-        // When: Два потока одновременно обновляют Lead с pessimistic lock
         ExecutorService executor = Executors.newFixedThreadPool(2);
         CountDownLatch startLatch = new CountDownLatch(1);
 

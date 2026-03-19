@@ -19,35 +19,23 @@ public class LeadLockingService {
         this.leadRepository = leadRepository;
     }
 
-    // Критическая операция с pessimistic lock
     @Transactional
     public Lead convertLeadToDealWithLock(UUID leadId, LeadStatus newStatus) {
-        // Блокируем Lead эксклюзивно до конца транзакции
+
         Lead lead = leadRepository.findByIdForUpdate(leadId)
                 .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + leadId));
-
-        // Здесь могла бы быть сложная бизнес-логика конверсии:
-        // - создание Deal
-        // - обновление статуса Lead
-        // - отправка уведомлений
-        // Другие транзакции ЖДУТ завершения этой операции
 
         lead.setStatus(newStatus);
         return leadRepository.save(lead);
     }
 
-    // Обычное обновление с optimistic lock (через @Version)
     @Transactional
     public Lead updateLeadStatusOptimistic(UUID leadId, LeadStatus newStatus) {
         Lead lead = leadRepository.findById(leadId)
                 .orElseThrow(() -> new IllegalArgumentException("Lead not found: " + leadId));
 
-        // Блокировки НЕТ — другие транзакции могут читать и изменять
-        // При сохранении JPA проверит version и выбросит OptimisticLockException если конфликт
-
         lead.setStatus(newStatus);
         return leadRepository.save(lead);
-        // UPDATE leads SET status=?, version=version+1 WHERE id=? AND version=?
     }
 
      @Transactional
