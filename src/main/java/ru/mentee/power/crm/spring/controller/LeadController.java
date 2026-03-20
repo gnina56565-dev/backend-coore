@@ -29,7 +29,7 @@ public class LeadController {
     @GetMapping("/leads/new")
     public String showCreateForm(Model model) {
         if (!model.containsAttribute("lead")) {
-            model.addAttribute("lead", new Lead());
+            model.addAttribute("lead", new Lead("", LeadStatus.NEW));
         }
         return "leads/create";
     }

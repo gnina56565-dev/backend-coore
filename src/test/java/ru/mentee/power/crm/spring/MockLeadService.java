@@ -3,7 +3,7 @@ package ru.mentee.power.crm.spring;
 import org.mockito.Mockito;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.repository.LeadRepository;
+import ru.mentee.power.crm.repository.LeadJpaRepository;
 import ru.mentee.power.crm.spring.repository.DealRepository;
 import ru.mentee.power.crm.spring.service.LeadProcessor;
 import ru.mentee.power.crm.spring.service.LeadService;
@@ -16,7 +16,7 @@ public class MockLeadService extends LeadService {
 
     public MockLeadService() {
         super(
-                Mockito.mock(LeadRepository.class),
+                Mockito.mock(LeadJpaRepository.class),
                 Mockito.mock(DealRepository.class),
                 Mockito.mock(LeadProcessor.class)
         );

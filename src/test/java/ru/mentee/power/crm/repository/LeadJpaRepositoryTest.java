@@ -20,10 +20,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
-class LeadRepositoryTest {
+class LeadJpaRepositoryTest {
 
     @Autowired
-    private LeadRepository repository;
+    private LeadJpaRepository repository;
 
     private Lead lead1;
     private Lead lead2;
@@ -31,14 +31,14 @@ class LeadRepositoryTest {
     @BeforeEach
     void setUp() {
         repository.deleteAll();
-        lead1 = new Lead();
+        lead1 = new Lead("test1@example.com", "Company1", LeadStatus.NEW);
         lead1.setEmail("john@example.com");
         lead1.setCompany("ACME Corp");
         lead1.setStatus(LeadStatus.NEW);
         lead1.setCreatedAt(LocalDateTime.now().minusDays(5));
         repository.save(lead1);
 
-        lead2 = new Lead();
+        lead2 = new Lead("test2@example.com", "Company2", LeadStatus.NEW);
         lead2.setEmail("jane@example.com");
         lead2.setCompany("Tech Inc");
         lead2.setStatus(LeadStatus.CONTACTED);

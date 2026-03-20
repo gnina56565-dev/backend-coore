@@ -14,7 +14,7 @@
     import ru.mentee.power.crm.model.CreateDealRequest;
     import ru.mentee.power.crm.model.Lead;
     import ru.mentee.power.crm.model.LeadStatus;
-    import ru.mentee.power.crm.repository.LeadRepository;
+    import ru.mentee.power.crm.repository.LeadJpaRepository;
     import ru.mentee.power.crm.spring.repository.DealRepository;
     import ru.mentee.power.crm.spring.service.LeadProcessor;
     import ru.mentee.power.crm.spring.service.LeadService;
@@ -36,7 +36,7 @@
         private LeadService leadService;
 
         @Autowired
-        private LeadRepository leadRepository;
+        private LeadJpaRepository leadJpaRepository;
 
         @Autowired
         private DealRepository dealRepository;
@@ -56,12 +56,12 @@
 
         private Lead createValidLead(LeadStatus status) {
             Lead lead = new Lead("test-" + System.nanoTime() + "@email.com", "TestCorp", status);
-            return leadRepository.save(lead);
+            return leadJpaRepository.save(lead);
         }
 
         private Lead createLeadWithEmail(LeadStatus status, String email) {
             Lead lead = new Lead(email, "TestCorp", status);
-            return leadRepository.save(lead);
+            return leadJpaRepository.save(lead);
         }
 
         @BeforeEach
@@ -78,7 +78,7 @@
         @Test
         void convertLeadToDeal_shouldRollbackOnConstraintViolation() {
             Lead lead = new Lead("test-" + System.nanoTime() + "@email.com", "TestCorp", LeadStatus.QUALIFIED);
-            lead = leadRepository.save(lead);
+            lead = leadJpaRepository.save(lead);
 
             long initialDealsCount = dealRepository.findAll().size();
 
@@ -93,7 +93,7 @@
                     NullPointerException.class,
                     () -> leadService.convertLeadToDeal(leadId, request)
             );
-            Lead persistedLead = leadRepository.findById(leadId).orElseThrow();
+            Lead persistedLead = leadJpaRepository.findById(leadId).orElseThrow();
             assertEquals(LeadStatus.QUALIFIED, persistedLead.getStatus());
             assertEquals(initialDealsCount, dealRepository.findAll().size());
         }
@@ -101,7 +101,7 @@
         @Test
         void convertLeadToDeal_shouldCommitOnSuccess() {
             Lead lead = new Lead("commit-test+" + System.nanoTime() + "@test.com", "Corp", LeadStatus.QUALIFIED);
-            lead = leadRepository.save(lead);
+            lead = leadJpaRepository.save(lead);
             UUID leadId = lead.getId();
 
             CreateDealRequest request = new CreateDealRequest();
@@ -111,7 +111,7 @@
             Deal deal = leadService.convertLeadToDeal(leadId, request);
             entityManager.clear();
             assertTrue(dealRepository.findById(deal.getId()).isPresent());
-            Lead updatedLead = leadRepository.findById(leadId).orElseThrow();
+            Lead updatedLead = leadJpaRepository.findById(leadId).orElseThrow();
             assertEquals(LeadStatus.CONTACTED, updatedLead.getStatus());
         }
 
@@ -145,7 +145,7 @@
                     "Количество сделок не должно измениться");
             assertTrue(currentDealIds.containsAll(existingDealIds),
                     "Все старые сделки должны остаться");
-            Lead unchangedLead = leadRepository.findById(leadId).orElseThrow();
+            Lead unchangedLead = leadJpaRepository.findById(leadId).orElseThrow();
             assertEquals(LeadStatus.NEW, unchangedLead.getStatus(),
                     "Статус лида не должен измениться");
         }
@@ -167,9 +167,9 @@
                     () -> leadService.processLeads(List.of(id1, id2, id3)));
             entityManager.flush();
             entityManager.clear();
-            Lead checked1 = leadRepository.findById(id1).orElseThrow();
-            Lead checked2 = leadRepository.findById(id2).orElseThrow();
-            Lead checked3 = leadRepository.findById(id3).orElseThrow();
+            Lead checked1 = leadJpaRepository.findById(id1).orElseThrow();
+            Lead checked2 = leadJpaRepository.findById(id2).orElseThrow();
+            Lead checked3 = leadJpaRepository.findById(id3).orElseThrow();
 
             assertAll(
                     () -> assertEquals(LeadStatus.NEW, checked1.getStatus(),
@@ -199,9 +199,9 @@
                                     .getMessage().contains(id2.toString())),
                     "Исключение должно ссылаться на lead id2"
             );
-            Lead result1 = leadRepository.findById(id1).orElseThrow();
-            Lead result2 = leadRepository.findById(id2).orElseThrow();
-            Lead result3 = leadRepository.findById(id3).orElseThrow();
+            Lead result1 = leadJpaRepository.findById(id1).orElseThrow();
+            Lead result2 = leadJpaRepository.findById(id2).orElseThrow();
+            Lead result3 = leadJpaRepository.findById(id3).orElseThrow();
             assertAll(
                     () -> assertEquals(LeadStatus.CONTACTED, result1.getStatus(),
                             "id1: REQUIRES_NEW-транзакция должна закоммититься до исключения"),
@@ -210,9 +210,9 @@
                     () -> assertEquals(LeadStatus.NEW, result3.getStatus(),
                             "id3: не должен обрабатываться — цикл прерван после исключения на id2")
             );
-            leadRepository.deleteById(id1);
-            leadRepository.deleteById(id2);
-            leadRepository.deleteById(id3);
+            leadJpaRepository.deleteById(id1);
+            leadJpaRepository.deleteById(id2);
+            leadJpaRepository.deleteById(id3);
         }
 
         @Test
@@ -223,30 +223,30 @@
                 UUID outerId = outerLead.getId();
                 String originalCompany = outerLead.getCompany();
                 entityManager.clear();
-                long countBefore = leadRepository.count();
+                long countBefore = leadJpaRepository.count();
                 assertThrows(RuntimeException.class, () ->
                         txTemplateDefault.execute(status -> {
-                            Lead outer = leadRepository.findById(outerId).orElseThrow();
+                            Lead outer = leadJpaRepository.findById(outerId).orElseThrow();
                             outer.setCompany("Changed-In-Tx");
-                            leadRepository.save(outer);
+                            leadJpaRepository.save(outer);
                             leadProcessor.methodRequired();
                             return null;
                         })
                 );
                 entityManager.clear();
-                long countAfter = leadRepository.count();
-                Lead result = leadRepository.findById(outerId).orElseThrow();
+                long countAfter = leadJpaRepository.count();
+                Lead result = leadJpaRepository.findById(outerId).orElseThrow();
                 assertAll(
                         () -> assertEquals(countBefore, countAfter),
                         () -> assertEquals(originalCompany, result.getCompany()),
                         () -> assertEquals(LeadStatus.NEW, result.getStatus())
                 );
-                leadRepository.delete(result);
+                leadJpaRepository.delete(result);
             } finally {
                 System.clearProperty("test.fail.required");
-                leadRepository.findAll().stream()
+                leadJpaRepository.findAll().stream()
                         .filter(l -> l.getEmail().contains("required+"))
-                        .forEach(leadRepository::delete);
+                        .forEach(leadJpaRepository::delete);
             }
         }
 
@@ -257,25 +257,25 @@
                 Lead outerLead = createValidLead(LeadStatus.NEW);
                 UUID outerId = outerLead.getId();
                 entityManager.clear();
-                long countBefore = leadRepository.count();
+                long countBefore = leadJpaRepository.count();
                 assertDoesNotThrow(() ->
                         txTemplateDefault.execute(status -> {
-                            Lead outer = leadRepository.findById(outerId).orElseThrow();
+                            Lead outer = leadJpaRepository.findById(outerId).orElseThrow();
                             outer.setCompany("Before-Inner");
-                            leadRepository.save(outer);
+                            leadJpaRepository.save(outer);
                             try {
                                 leadProcessor.methodRequiredNew();
                             } catch (RuntimeException e) {
                             }
                             outer.setCompany("After-Inner");
-                            leadRepository.save(outer);
+                            leadJpaRepository.save(outer);
 
                             return null;
                         })
                 );
                 entityManager.clear();
-                Lead resultOuter = leadRepository.findById(outerId).orElseThrow();
-                long innerLeadsCount = leadRepository.findAll().stream()
+                Lead resultOuter = leadJpaRepository.findById(outerId).orElseThrow();
+                long innerLeadsCount = leadJpaRepository.findAll().stream()
                         .filter(l -> l.getEmail().contains("requires-new+"))
                         .count();
                 assertAll(
@@ -286,12 +286,12 @@
                         () -> assertEquals(LeadStatus.NEW, resultOuter.getStatus(),
                                 "Статус внешнего лида не должен измениться (мы меняли только company)")
                 );
-                leadRepository.delete(resultOuter);
+                leadJpaRepository.delete(resultOuter);
             } finally {
                 System.clearProperty("test.fail.required.new");
-                leadRepository.findAll().stream()
+                leadJpaRepository.findAll().stream()
                         .filter(l -> l.getEmail().contains("requires-new+"))
-                        .forEach(leadRepository::delete);
+                        .forEach(leadJpaRepository::delete);
             }
         }
 
@@ -304,19 +304,19 @@
             final String[] readValues = new String[2];
 
             txTemplateReadCommitted.execute(status -> {
-                Lead firstRead = leadRepository.findById(leadId).orElseThrow();
+                Lead firstRead = leadJpaRepository.findById(leadId).orElseThrow();
                 readValues[0] = firstRead.getCompany();
 
                 entityManager.clear();
 
                 txTemplateDefault.execute(status2 -> {
-                    Lead toUpdate = leadRepository.findById(leadId).orElseThrow();
+                    Lead toUpdate = leadJpaRepository.findById(leadId).orElseThrow();
                     toUpdate.setCompany("Updated-In-Second-Tx");
-                    leadRepository.save(toUpdate);
+                    leadJpaRepository.save(toUpdate);
                     return null;
                 });
 
-                Lead secondRead = leadRepository.findById(leadId).orElseThrow();
+                Lead secondRead = leadJpaRepository.findById(leadId).orElseThrow();
                 readValues[1] = secondRead.getCompany();
 
                 return null;
@@ -325,7 +325,7 @@
             assertEquals(originalCompany, readValues[0]);
             assertEquals("Updated-In-Second-Tx", readValues[1]);
 
-            leadRepository.delete(lead);
+            leadJpaRepository.delete(lead);
         }
         @Test
         void isolation_REPEATABLE_READ_preventsNonRepeatableRead() {
@@ -336,7 +336,7 @@
             final String[] readValues = new String[2];
 
             txTemplateRepeatableRead.execute(status -> {
-                Lead firstRead = leadRepository.findById(leadId).orElseThrow();
+                Lead firstRead = leadJpaRepository.findById(leadId).orElseThrow();
                 readValues[0] = firstRead.getCompany();
                 entityManager.clear();
                 TransactionTemplate txRequiresNew = new TransactionTemplate(transactionManager);
@@ -344,21 +344,21 @@
                 txRequiresNew.setIsolationLevel(TransactionDefinition.ISOLATION_READ_COMMITTED);
 
                 txRequiresNew.execute(status2 -> {
-                    entityManager.clear();
-                    Lead toUpdate = leadRepository.findById(leadId).orElseThrow();
+                    Lead toUpdate = leadJpaRepository.findById(leadId).orElseThrow();
                     toUpdate.setCompany("Updated-In-Second-Tx");
-                    leadRepository.save(toUpdate);
+                    leadJpaRepository.save(toUpdate);
                     return null;
                 });
-                Lead secondRead = leadRepository.findById(leadId).orElseThrow();
+                entityManager.clear();
+                Lead secondRead = leadJpaRepository.findById(leadId).orElseThrow();
                 readValues[1] = secondRead.getCompany();
 
                 return null;
             });
             assertEquals(originalCompany, readValues[0]);
-            assertEquals(originalCompany, readValues[1] + readValues[1]);
+            assertEquals(originalCompany, readValues[1]);
 
-            leadRepository.delete(lead);
+            leadJpaRepository.delete(lead);
         }
     }
 

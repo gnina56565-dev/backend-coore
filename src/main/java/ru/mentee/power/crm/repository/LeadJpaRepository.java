@@ -1,20 +1,22 @@
 package ru.mentee.power.crm.repository;
 
+import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public interface LeadRepository extends JpaRepository<Lead, UUID> {
+public interface LeadJpaRepository extends JpaRepository<Lead, UUID> {
     @Query(value = "SELECT * FROM leads WHERE email = ?1", nativeQuery = true)
     public Optional<Lead> findByEmailNative(String email);
 
@@ -62,4 +64,13 @@ public interface LeadRepository extends JpaRepository<Lead, UUID> {
      @Modifying
      @Query("DELETE FROM Lead l WHERE l.status = :status")
      int deleteByStatusBulk(@Param("status") LeadStatus status);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT l FROM Lead l WHERE l.id = :id")
+    Optional<Lead> findByIdForUpdate(@Param("id") UUID id);
+
+     @Lock(LockModeType.PESSIMISTIC_WRITE)
+     @Query("SELECT l FROM Lead l WHERE l.email = :email")
+     Optional<Lead> findByEmailForUpdate(@Param("email") String email);
+
 }
