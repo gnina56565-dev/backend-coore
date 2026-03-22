@@ -10,6 +10,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadJpaRepository;
+import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.spring.repository.DealRepository;
 
 import java.util.UUID;
@@ -29,7 +30,8 @@ public class LeadProcessor {
     @Transactional(propagation = Propagation.REQUIRED)
     public void methodRequired() {
         logTx("REQUIRED");
-        Lead lead = new Lead("required+" + System.nanoTime() + "@test.com", "Required Corp", LeadStatus.NEW);
+        Company company = new Company("Required Corp", "General");
+        Lead lead = new Lead("required+" + System.nanoTime() + "@test.com", company, LeadStatus.NEW);
         leadJpaRepository.save(lead);
         if (Boolean.parseBoolean(System.getProperty("test.fail.required", "false"))) {
             throw new RuntimeException("Forced rollback in REQUIRED");
@@ -39,7 +41,8 @@ public class LeadProcessor {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void methodRequiredNew() {
         logTx("REQUIRES_NEW");
-        Lead lead = new Lead("required-new+" + System.nanoTime() + "@test.com", "Requires New Corp", LeadStatus.NEW);
+        Company company = new Company("Required_New Corp", "General");
+        Lead lead = new Lead("required-new+" + System.nanoTime() + "@test.com", company, LeadStatus.NEW);
         leadJpaRepository.save(lead);
         if (Boolean.parseBoolean(System.getProperty("test.fail.required-new", "false"))) {
             throw new RuntimeException("Forced rollback in REQUIRED_NEW");
@@ -49,23 +52,26 @@ public class LeadProcessor {
     @Transactional(propagation = Propagation.MANDATORY)
     public void methodMandatory() {
         logTx("MANDATORY");
-        Lead lead = new Lead("mandatory+" + System.nanoTime() + "@test.com", "Mandatory Corp", LeadStatus.NEW);
+        Company company = new Company("Mandatory Corp", "General");
+        Lead lead = new Lead("mandatory+" + System.nanoTime() + "@test.com", company, LeadStatus.NEW);
         leadJpaRepository.save(lead);
     }
 
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public void methodReadCommitted() {
         logTx("READ_COMMITTED");
+        Company company = new Company("Read Commited Corp", "General");
         Lead lead = new Lead("read-committed+" + System.nanoTime() + "@test.com",
-                "Read Committed Corp", LeadStatus.NEW);
+                company, LeadStatus.NEW);
         leadJpaRepository.save(lead);
     }
 
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public void methodRepeatableRead() {
         logTx("REPEATABLE_READ");
+        Company company = new Company("Repetable Read Corp", "General");
         Lead lead = new Lead("repeatable-read+" + System.nanoTime() + "@test.com",
-                "Repeatable Read Corp", LeadStatus.NEW);
+                company, LeadStatus.NEW);
         leadJpaRepository.save(lead);
         if (Boolean.parseBoolean(System.getProperty("test.fail.repeatable-read", "false"))) {
             throw new RuntimeException("Forced rollback in REPEATABLE-READ");

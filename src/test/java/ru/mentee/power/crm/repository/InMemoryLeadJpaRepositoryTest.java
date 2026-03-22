@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.spring.repository.InMemoryLeadRepository;
 
 import java.util.List;
@@ -21,8 +22,10 @@ class InMemoryLeadJpaRepositoryTest {
     @BeforeEach
     void setUp() {
         repository = new InMemoryLeadRepository();
-        lead1 = new Lead(UUID.randomUUID(), "test1@example.com", "Company 1", LeadStatus.NEW);
-        lead2 = new Lead(UUID.randomUUID(), "test2@example.com", "Company 2", LeadStatus.CONTACTED);
+        Company company1 = new Company("test1", "General");
+        Company company2 = new Company("test2", "General");
+        lead1 = new Lead(UUID.randomUUID(), "test1@example.com", company1, LeadStatus.NEW);
+        lead2 = new Lead(UUID.randomUUID(), "test2@example.com", company2, LeadStatus.CONTACTED);
     }
 
     @Test

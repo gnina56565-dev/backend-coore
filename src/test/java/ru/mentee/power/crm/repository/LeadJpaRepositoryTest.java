@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.model.Company;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,17 +31,21 @@ class LeadJpaRepositoryTest {
 
     @BeforeEach
     void setUp() {
+        Company company1 = new Company("Company1", "General");
+        Company companyAcme = new Company("ACME Corp", "General");
+        Company company2 = new Company("Company2", "General");
+        Company companyTechInc = new Company("Tech Inc", "General");
         repository.deleteAll();
-        lead1 = new Lead("test1@example.com", "Company1", LeadStatus.NEW);
+        lead1 = new Lead("test1@example.com", company1, LeadStatus.NEW);
         lead1.setEmail("john@example.com");
-        lead1.setCompany("ACME Corp");
+        lead1.setCompany(companyAcme);
         lead1.setStatus(LeadStatus.NEW);
         lead1.setCreatedAt(LocalDateTime.now().minusDays(5));
         repository.save(lead1);
 
-        lead2 = new Lead("test2@example.com", "Company2", LeadStatus.NEW);
+        lead2 = new Lead("test2@example.com", company2, LeadStatus.NEW);
         lead2.setEmail("jane@example.com");
-        lead2.setCompany("Tech Inc");
+        lead2.setCompany(companyTechInc);
         lead2.setStatus(LeadStatus.CONTACTED);
         lead2.setCreatedAt(LocalDateTime.now().minusDays(2));
         repository.save(lead2);
@@ -100,7 +105,8 @@ class LeadJpaRepositoryTest {
 
     @Test
     void shouldFindByStatusAndCompany_Valid() {
-        List<Lead> found = repository.findByStatusAndCompany(LeadStatus.NEW, "ACME Corp");
+        Company company = new Company("ACME Corp", "General");
+        List<Lead> found = repository.findByStatusAndCompany(LeadStatus.NEW, company);
 
         assertThat(found.get(0).getEmail()).isEqualTo("john@example.com");
     }

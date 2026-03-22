@@ -4,12 +4,12 @@ import org.mockito.Mockito;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadJpaRepository;
+import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.spring.repository.DealRepository;
 import ru.mentee.power.crm.spring.service.LeadProcessor;
 import ru.mentee.power.crm.spring.service.LeadService;
 
 import java.util.List;
-import java.util.UUID;
 
 public class MockLeadService extends LeadService {
     private final List<Lead> mockLeads;
@@ -20,11 +20,21 @@ public class MockLeadService extends LeadService {
                 Mockito.mock(DealRepository.class),
                 Mockito.mock(LeadProcessor.class)
         );
+
+        Company companyA = new Company("Company A", "General");
+        Company companyB = new Company("Company B", "General");
+
         this.mockLeads = List.of(
-                new Lead(UUID.randomUUID(), "test1@example.com", "Company A", LeadStatus.NEW),
-                new Lead(UUID.randomUUID(), "test2@example.com", "Company B", LeadStatus.QUALIFIED)
+                createMockLead("test1@example.com", companyA, LeadStatus.NEW),
+                createMockLead("test2@example.com", companyB, LeadStatus.QUALIFIED)
         );
     }
+
+    private Lead createMockLead(String email, Company company, LeadStatus status) {
+        Lead lead = new Lead(email, company, status);
+        return lead;
+    }
+
     @Override
     public List<Lead> findAll() {
         return mockLeads;

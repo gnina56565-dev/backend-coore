@@ -8,6 +8,7 @@ import org.springframework.test.context.ActiveProfiles;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadJpaRepository;
+import ru.mentee.power.crm.model.Company;
 
 import java.util.List;
 import java.util.UUID;
@@ -32,7 +33,8 @@ class LeadLockingServiceTest {
 
     @Test
     void shouldPreventLostUpdate_whenPessimisticLockUsed() throws Exception {
-        Lead lead = new Lead("concurrent@test.com", "TestComp", LeadStatus.NEW);
+        Company company = new Company("TestComp", "General");
+        Lead lead = new Lead("concurrent@test.com", company, LeadStatus.NEW);
         lead = leadRepository.save(lead);
         UUID leadId = lead.getId();
 
@@ -73,7 +75,8 @@ class LeadLockingServiceTest {
 
     @Test
     void shouldThrowOptimisticLockException_whenConcurrentUpdateWithoutLock() throws Exception {
-        Lead lead = new Lead("optimistic@test.com", "TestComp",  LeadStatus.NEW);
+        Company company = new Company("TestComp", "General");
+        Lead lead = new Lead("optimistic@test.com", company, LeadStatus.NEW);
         lead = leadRepository.save(lead);
         UUID leadId = lead.getId();
 
@@ -112,8 +115,11 @@ class LeadLockingServiceTest {
 
     @Test
     void shouldDeadLock() throws Exception {
-        Lead leadA = leadRepository.save(new Lead("a@test.com", "CompanyA", LeadStatus.NEW));
-        Lead leadB = leadRepository.save(new Lead("b@test.com", "CompanyB", LeadStatus.NEW));
+        Company companyA = new Company("CompanyA", "General");
+        Company companyB = new Company("CompanyB", "General");
+
+        Lead leadA = leadRepository.save(new Lead("a@test.com", companyA, LeadStatus.NEW));
+        Lead leadB = leadRepository.save(new Lead("b@test.com", companyB, LeadStatus.NEW));
 
         List<UUID> order1 = List.of(leadA.getId(), leadB.getId());
         List<UUID> order2 = List.of(leadB.getId(), leadA.getId());

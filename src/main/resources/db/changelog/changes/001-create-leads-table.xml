@@ -13,13 +13,18 @@
             <column name="email" type="VARCHAR(255)">
                 <constraints nullable="false" unique="true"/>
             </column>
-            <column name="company" type="VARCHAR(255)">
-                <constraints nullable="false"/>
+            <!-- Создаем колонку для связи, но пока без FK ограничения -->
+            <column name="company_id" type="UUID">
+                <constraints nullable="true"/>
             </column>
             <column name="status" type="VARCHAR(50)">
                 <constraints nullable="false"/>
             </column>
             <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+            <!-- Добавляем версию сразу здесь -->
+            <column name="version" type="BIGINT" defaultValueNumeric="0">
                 <constraints nullable="false"/>
             </column>
         </createTable>
