@@ -58,7 +58,7 @@
                     <tr class="border-t hover:bg-gray-50">
                         <td class="px-4 py-2 font-mono text-sm">${lead.getId() != null ? lead.getId().toString() : "-"}</td>
                         <td class="px-4 py-2">${lead.getEmail() != null ? lead.getEmail() : "-"}</td>
-                        <td class="px-4 py-2 font-semibold">${lead.getCompany() != null ? lead.getCompany() : "-"}</td>
+                        <td class="px-4 py-2 font-semibold">${lead.getCompany() != null ? lead.getCompany().getName() : "-"}</td>
                         <td class="px-4 py-2">
                             <span class="px-2 py-1 rounded text-xs font-medium ${lead.getStatus() == LeadStatus.NEW ? "bg-blue-100 text-blue-800" : lead.getStatus() == LeadStatus.CONTACTED ? "bg-yellow-100 text-yellow-800" : "bg-green-100 text-green-800"}">
                                 ${lead.getStatus()}
@@ -69,7 +69,7 @@
                                 Редактировать
                             </a>
                             <form method="post" action="/leads/${lead.getId().toString()}/delete" class="inline"
-                                  onclick="return confirm('Удалить лида ${lead.getCompany()}?')">
+                                  onclick="return confirm('Удалить лида ${lead.getCompany() != null ? lead.getCompany().getName() : "-"}?')">
                               <button type="submit" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700">
                                 Удалить
                               </button>
