@@ -6,8 +6,8 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication(scanBasePackages = "ru.mentee.power.crm")
-@EntityScan(basePackages = "ru.mentee.power.crm.model")
-@EnableJpaRepositories(basePackages = "ru.mentee.power.crm.repository")
+@EntityScan(basePackages = "ru.mentee.power.crm")
+@EnableJpaRepositories(basePackages = "ru.mentee.power.crm")
 public class Application {
 
 

@@ -17,6 +17,7 @@ import ru.mentee.power.crm.model.CreateDealRequest;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadJpaRepository;
+import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.spring.repository.DealRepository;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class LeadService {
     private final LeadProcessor leadProcessor;
 
     @Transactional
-    public Lead addLead(String email, String company, LeadStatus status) {
+    public Lead addLead(String email, Company company, LeadStatus status) {
         Optional<Lead> existing = leadJpaRepository.findByEmailNative(email);
         if (existing.isPresent()) {
             throw new IllegalStateException("Lead with email already exists: " + email);
@@ -125,7 +126,7 @@ public class LeadService {
         return leadJpaRepository.findAll(pageRequest);
     }
 
-    public Page<Lead> searchByCompany(String company, int page, int size) {
+    public Page<Lead> searchByCompany(Company company, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         return leadJpaRepository.findByCompany(company, pageable);
     }

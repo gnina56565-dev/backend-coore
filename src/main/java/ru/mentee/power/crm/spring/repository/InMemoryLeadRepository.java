@@ -3,6 +3,7 @@ package ru.mentee.power.crm.spring.repository;
 import org.springframework.stereotype.Repository;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.model.Company;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,7 @@ public class InMemoryLeadRepository implements LeadRepository {
     public InMemoryLeadRepository() {
     }
 
-    private void addLead(String email, String company, LeadStatus status) {
+    private void addLead(String email, Company company, LeadStatus status) {
         Lead lead = new Lead(UUID.randomUUID(), email, company, status);
         storage.put(lead.getId(), lead);
         emailIndex.put(email, lead.getId());
