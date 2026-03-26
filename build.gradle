@@ -24,6 +24,7 @@ ext {
     springBootVersion = '3.5.10'
     validationApiVersion = '3.1.0'
     hibernateValidatorVersion = '8.0.2.Final'
+    liquibaseVersion = '4.25.0'
 }
 
 dependencies {
@@ -49,7 +50,9 @@ dependencies {
 
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-    implementation 'org.liquibase:liquibase-core'
+    implementation "org.liquibase:liquibase-core"
+
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}"
     
     runtimeOnly 'org.postgresql:postgresql'
 

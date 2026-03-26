@@ -8,7 +8,9 @@ gg:
 
 spring:
   liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.xml
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+    drop-first: false
   application:
     name: crm
   jte:
