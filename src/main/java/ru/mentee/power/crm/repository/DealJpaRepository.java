@@ -9,7 +9,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface DealJpaRepository extends JpaRepository<Deal, UUID> {
-    @EntityGraph(attributePaths = {"dealProducts", "dealProducts.product"})
+
+    @EntityGraph(attributePaths = {"dealProducts", "dealProducts.product"}, type = EntityGraph.EntityGraphType.FETCH)
     @Query("SELECT d FROM Deal d WHERE d.id = :id")
     Optional<Deal> findDealWithProducts(UUID id);
 }

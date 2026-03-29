@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,10 @@ public class Deal {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Version
+    @Column(nullable = false)
+    private Long version;
+
     @Column(nullable = false)
     private UUID leadId;
 
@@ -49,7 +54,6 @@ public class Deal {
     private List<DealProduct> dealProducts = new ArrayList<>();
 
     public Deal(UUID leadId, BigDecimal amount) {
-        this.id = UUID.randomUUID();
         this.leadId = Objects.requireNonNull(leadId, "leadId must not be null");
         this.amount = Objects.requireNonNull(amount, "amount must not be null");
         this.status = DealStatus.NEW;
