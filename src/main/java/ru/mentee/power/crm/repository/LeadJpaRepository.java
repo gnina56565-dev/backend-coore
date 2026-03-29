@@ -27,7 +27,6 @@ public interface LeadJpaRepository extends JpaRepository<Lead, UUID> {
 
     List<Lead> findByStatus(LeadStatus status);
 
-    // ИСПРАВЛЕНО: принимаем объект Company вместо String
     List<Lead> findByCompany(Company company);
 
     long countByStatus(LeadStatus status);
@@ -37,7 +36,6 @@ public interface LeadJpaRepository extends JpaRepository<Lead, UUID> {
     @Query("SELECT l FROM Lead l WHERE l.email LIKE CONCAT('%', :emailPart, '%')")
     List<Lead> findByEmailContaining(@Param("emailPart") String emailPart);
 
-    // ИСПРАВЛЕНО: принимаем объект Company вместо String
     List<Lead> findByStatusAndCompany(LeadStatus status, Company company);
 
     List<Lead> findByStatusOrderByCreatedAtDesc(LeadStatus status);
@@ -48,13 +46,11 @@ public interface LeadJpaRepository extends JpaRepository<Lead, UUID> {
     @Query("SELECT l FROM Lead l WHERE l.createdAt > :date")
     List<Lead> findCreatedAfter(@Param("date") LocalDateTime date);
 
-    // ИСПРАВЛЕНО: тип параметра Company вместо String
     @Query("SELECT l FROM Lead l WHERE l.company = :company ORDER BY l.createdAt DESC")
     List<Lead> findByCompanyOrderedByDate(@Param("company") Company company);
 
     Page<Lead> findAll(Pageable pageable);
 
-    // Этот метод уже был верным
     Page<Lead> findByCompany(Company company, Pageable pageable);
 
     @Query("SELECT l FROM Lead l WHERE l.status IN :statuses")
