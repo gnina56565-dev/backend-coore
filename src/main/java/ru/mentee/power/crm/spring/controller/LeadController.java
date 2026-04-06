@@ -29,7 +29,8 @@ public class LeadController {
     @GetMapping("/leads/new")
     public String showCreateForm(Model model) {
         if (!model.containsAttribute("lead")) {
-            model.addAttribute("lead", new Lead("", LeadStatus.NEW));
+            Lead emptyLead = new Lead("", LeadStatus.NEW);
+            model.addAttribute("lead", emptyLead);
         }
         return "leads/create";
     }
@@ -43,10 +44,43 @@ public class LeadController {
             return "leads/create";
         }
 
-        leadService.addLead(lead.getEmail(), lead.getCompany(), lead.getStatus());
-        return "redirect:/leads";
+        String companyName = lead.getCompanyName() != null ? lead.getCompanyName() : "";
+        if (companyName.isBlank()) {
+            bindingResult.rejectValue("companyName", "error.company", "Название компании обязательно");
+            model.addAttribute("errors", bindingResult);
+            return "leads/create";
+        }
+
+        try {
+            leadService.addLead(lead.getEmail(), companyName, lead.getStatus());
+            return "redirect:/leads";
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            handleDuplicateEmail(e, bindingResult, model);
+            return "leads/create";
+        } catch (Exception e) {
+            bindingResult.reject("error.global", "Произошла непредвиденная ошибка при сохранении.");
+            model.addAttribute("errors", bindingResult);
+            return "leads/create";
+        }
     }
 
+    private void handleDuplicateEmail(org.springframework.dao.DataIntegrityViolationException e,
+                                      BindingResult bindingResult,
+                                      Model model) {
+        Throwable cause = e.getRootCause();
+        while (cause != null) {
+            if (cause instanceof org.hibernate.exception.ConstraintViolationException ||
+                    (cause.getMessage() != null && cause.getMessage().contains("duplicate key"))) {
+
+                bindingResult.rejectValue("email", "error.email.duplicate", "Пользователь с таким Email уже существует!");
+                model.addAttribute("errors", bindingResult);
+                return;
+            }
+            cause = cause.getCause();
+        }
+        bindingResult.reject("error.db", "Lead с таким email уже существует.");
+        model.addAttribute("errors", bindingResult);
+    }
 
     @GetMapping("/")
     @ResponseBody
@@ -61,6 +95,10 @@ public class LeadController {
                         HttpStatus.NOT_FOUND,
                         "Lead not found with id: " + id
                 ));
+        // Убеждаемся, что имя компании доступно для формы
+        if (lead.getCompany() != null) {
+            lead.setCompanyName(lead.getCompany().getName());
+        }
         model.addAttribute("lead", lead);
         return "spring/edit";
     }
@@ -71,8 +109,10 @@ public class LeadController {
                              Model model) {
         if (bindingResult.hasErrors()) {
             model.addAttribute("errors", bindingResult);
-            return "leads/create";
+            return "spring/edit";
         }
+
+        // Сохранение теперь происходит в сервисе с логикой привязки компании
         leadService.save(lead);
         return "redirect:/leads";
     }
@@ -87,6 +127,7 @@ public class LeadController {
         leadService.delete(id);
         return "redirect:/leads";
     }
+
     @GetMapping("/leads")
     public String listLeads(
             @RequestParam(required = false) String search,

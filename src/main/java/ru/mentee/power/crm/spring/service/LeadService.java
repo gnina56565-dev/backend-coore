@@ -13,11 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.domain.Deal;
 import ru.mentee.power.crm.exception.IllegalLeadStateException;
+import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.CreateDealRequest;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadJpaRepository;
-import ru.mentee.power.crm.model.Company;
+import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.repository.DealRepository;
 
 import java.util.List;
@@ -33,20 +34,18 @@ public class LeadService {
     private final LeadJpaRepository leadJpaRepository;
     private final DealRepository dealRepository;
     private final LeadProcessor leadProcessor;
+    private final CompanyRepository companyRepository;
 
     @Transactional
-    public Lead addLead(String email, Company company, LeadStatus status) {
-        Optional<Lead> existing = leadJpaRepository.findByEmailNative(email);
-        if (existing.isPresent()) {
-            throw new IllegalStateException("Lead with email already exists: " + email);
-        }
+    public void addLead(String email, String companyNameStr, LeadStatus status) {
+        Company company = companyRepository.findByName(companyNameStr)
+                .orElseGet(() -> {
+                    Company newCompany = new Company(companyNameStr, null);
+                    return companyRepository.save(newCompany);
+                });
+
         Lead lead = new Lead(email, company, status);
-
-        log.info("Saving lead: {}", lead);
-        Lead saved = leadJpaRepository.save(lead);
-        log.info("Saved lead with ID: {}", saved.getId());
-
-        return saved;
+        leadJpaRepository.save(lead);
     }
 
     public List<Lead> findAll() {
@@ -106,6 +105,21 @@ public class LeadService {
 
     @Transactional
     public void save(Lead lead) {
+        if (lead.getCompany() == null && lead.getCompanyName() != null) {
+            String companyName = lead.getCompanyName().trim();
+            Company company = companyRepository.findByName(companyName)
+                    .orElseGet(() -> {
+                        Company newCompany = new Company(companyName, null);
+                        return companyRepository.save(newCompany);
+                    });
+
+            lead.setCompany(company);
+        } else if (lead.getCompany() != null && lead.getCompany().getId() == null) {
+            String companyName = lead.getCompany().getName();
+            Company company = companyRepository.findByName(companyName)
+                    .orElseGet(() -> companyRepository.save(lead.getCompany()));
+            lead.setCompany(company);
+        }
         leadJpaRepository.save(lead);
     }
 
@@ -175,4 +189,6 @@ public class LeadService {
         lead.setStatus(LeadStatus.CONTACTED);
         leadJpaRepository.save(lead);
     }
+
+
 }

@@ -74,14 +74,14 @@ class InMemoryLeadJpaRepositoryTest {
     @Test
     void shouldDeleteLead() {
         repository.save(lead1);
-        repository.delete(lead1.getId());
+        repository.delete(lead1);
         assertThat(repository.findById(lead1.getId())).isEmpty();
         assertThat(repository.findByEmail(lead1.getEmail())).isEmpty();
     }
 
     @Test
     void shouldNotFailWhenDeletingNonExistentLead() {
-        repository.delete(UUID.randomUUID());
+        repository.delete(lead1);
         assertThat(repository.findAll()).isEmpty();
     }
 }

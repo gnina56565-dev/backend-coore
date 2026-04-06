@@ -16,6 +16,14 @@
         </div>
       @endif
 
+      @if(errors != null && errors.hasGlobalErrors())
+         <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            @for(org.springframework.validation.ObjectError error : errors.getGlobalErrors())
+               <p>${error.getDefaultMessage()}</p>
+            @endfor
+         </div>
+      @endif
+
       <form method="post" class="space-y-4" novalidate>
 
         <!-- Email -->
@@ -34,15 +42,15 @@
 
         <!-- Company -->
         <div class="mb-4">
-          <label for="company" class="block text-sm font-medium text-gray-700 mb-1">Компания</label>
+          <label for="companyName" class="block text-sm font-medium text-gray-700 mb-1">Компания</label>
           <input type="text"
-                 id="company"
-                 name="company"
-                 value="${lead.getCompany()}"
-                 class='w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors != null && errors.hasFieldErrors("company") ? "border-red-500" : "border-gray-300"}'
+                 id="companyName"
+                 name="companyName"
+                 value="${lead.getCompany() != null ? lead.getCompany().getName() : (lead.getCompanyName() != null ? lead.getCompanyName() : "")}"
+                 class='w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors != null && errors.hasFieldErrors("companyName") ? "border-red-500" : "border-gray-300"}'
                  placeholder="Company A" />
-          @if(errors != null && errors.hasFieldErrors("company"))
-            <p class="text-red-600 text-sm mt-1">${errors.getFieldError("company").getDefaultMessage()}</p>
+          @if(errors != null && errors.hasFieldErrors("companyName"))
+            <p class="text-red-600 text-sm mt-1">${errors.getFieldError("companyName").getDefaultMessage()}</p>
           @endif
         </div>
 
@@ -55,7 +63,7 @@
             @for(LeadStatus status : LeadStatus.values())
               <option
                 value="${status.name()}"
-                selected="${lead.getStatus() != null && lead.getStatus() == status}"
+                selected="${lead.getStatus() != null && lead.getStatus().name() == status.name()}"
               >${status}</option>
             @endfor
           </select>

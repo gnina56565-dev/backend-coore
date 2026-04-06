@@ -1,16 +1,10 @@
     package ru.mentee.power.crm.model;
 
-    import jakarta.persistence.CascadeType;
-    import jakarta.persistence.Column;
-    import jakarta.persistence.Entity;
-    import jakarta.persistence.GeneratedValue;
-    import jakarta.persistence.GenerationType;
-    import jakarta.persistence.Id;
-    import jakarta.persistence.OneToMany;
-    import jakarta.persistence.Table;
+    import jakarta.persistence.*;
     import lombok.AllArgsConstructor;
     import lombok.Data;
     import lombok.NoArgsConstructor;
+    import lombok.ToString;
 
     import java.util.ArrayList;
     import java.util.List;
@@ -21,6 +15,7 @@
     @AllArgsConstructor
     @Entity
     @Table(name = "companies")
+    @ToString(exclude = "leads")
     public class Company {
 
         @Id
@@ -32,7 +27,7 @@
 
         String industry;
 
-        @OneToMany(mappedBy = "company", cascade = CascadeType.PERSIST)
+        @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
         private List<Lead> leads = new ArrayList<>();
 
         public Company(String name, String industry) {
