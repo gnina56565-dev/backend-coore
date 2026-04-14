@@ -14,8 +14,6 @@ public class WebConfig implements WebMvcConfigurer {
             if (source == null || source.trim().isEmpty()) {
                 return null;
             }
-            // Создаем новый объект Company с именем из строки
-            // В реальном приложении здесь должен быть поиск компании по имени в БД
             return new Company(source.trim(), null);
         });
     }

@@ -10,10 +10,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 public class DemoController {
 
-    // Constructor Injection (recommended) — final field
     private final LeadService constructorService;
 
-    // Field Injection (not recommended) — cannot be final
     @Autowired
     private LeadRepository fieldRepository;
 

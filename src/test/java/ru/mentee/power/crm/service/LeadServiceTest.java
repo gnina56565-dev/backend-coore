@@ -9,6 +9,7 @@ import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadJpaRepository;
 import ru.mentee.power.crm.model.Company;
+import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.service.LeadService;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -23,15 +24,20 @@ class LeadServiceTest {
     @Autowired
     private LeadJpaRepository repository;
 
+    @Autowired
+    private CompanyRepository companyRepository;
+
     @BeforeEach
     void setUp() {
         repository.deleteAll();
+        companyRepository.deleteAll();
 
         for (int i = 1; i <= 3; i++) {
+
             Company company = new Company("Company " + i, "General Industry");
+            company = companyRepository.save(company);
 
             Lead lead = new Lead("lead" + i + "@example.com", company, LeadStatus.NEW);
-
             repository.save(lead);
         }
     }
@@ -56,5 +62,4 @@ class LeadServiceTest {
         assertThat(archive).isEqualTo(3);
         assertThat(repository.countByStatus(LeadStatus.NEW)).isEqualTo(0);
     }
-
 }

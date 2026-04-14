@@ -3,7 +3,7 @@ package ru.mentee.power.crm;
 import org.apache.catalina.Context;
 import org.apache.catalina.startup.Tomcat;
 import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.spring.repository.InMemoryLeadRepository;
+import ru.mentee.power.crm.repository.InMemoryLeadRepository;
 import ru.mentee.power.crm.servlet.LeadListServlet;
 
 import java.io.File;

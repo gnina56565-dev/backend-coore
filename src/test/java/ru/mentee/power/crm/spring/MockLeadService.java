@@ -18,9 +18,9 @@ public class MockLeadService extends LeadService {
     public MockLeadService() {
         super(
                 Mockito.mock(LeadJpaRepository.class),
-                (DealRepository) Mockito.mock(CompanyRepository.class),
-                (LeadProcessor) Mockito.mock(DealRepository.class),
-                (CompanyRepository) Mockito.mock(LeadProcessor.class)
+                Mockito.mock(DealRepository.class),
+                Mockito.mock(LeadProcessor.class),
+                Mockito.mock(CompanyRepository.class)
         );
 
         Company companyA = new Company("Company A", "General");

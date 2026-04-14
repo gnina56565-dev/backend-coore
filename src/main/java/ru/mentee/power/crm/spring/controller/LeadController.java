@@ -6,15 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.service.LeadService;
 
 import java.util.List;
@@ -25,6 +22,7 @@ import java.util.UUID;
 public class LeadController {
 
     private final LeadService leadService;
+    private final CompanyRepository companyRepository;
 
     @GetMapping("/leads/new")
     public String showCreateForm(Model model) {
@@ -95,7 +93,6 @@ public class LeadController {
                         HttpStatus.NOT_FOUND,
                         "Lead not found with id: " + id
                 ));
-        // Убеждаемся, что имя компании доступно для формы
         if (lead.getCompany() != null) {
             lead.setCompanyName(lead.getCompany().getName());
         }
@@ -104,17 +101,39 @@ public class LeadController {
     }
 
     @PostMapping("/leads/{id}")
-    public String updateLead(@PathVariable UUID id, @Valid @ModelAttribute Lead lead,
+    public String updateLead(@PathVariable UUID id,
+                             @Valid @ModelAttribute Lead formLead,
                              BindingResult bindingResult,
                              Model model) {
+        String companyName = formLead.getCompanyName();
+        if (companyName == null || companyName.isBlank()) {
+            bindingResult.rejectValue("companyName", "error.company.required", "Компания обязательна");
+            return "spring/edit";
+        }
         if (bindingResult.hasErrors()) {
-            model.addAttribute("errors", bindingResult);
             return "spring/edit";
         }
 
-        // Сохранение теперь происходит в сервисе с логикой привязки компании
-        leadService.save(lead);
-        return "redirect:/leads";
+        try {
+            Lead existingLead = leadService.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Lead not found"));
+            existingLead.setEmail(formLead.getEmail());
+            existingLead.setStatus(formLead.getStatus());
+            Company company = companyRepository.findByName(companyName)
+                    .orElseGet(() -> {
+                        Company newCompany = new Company();
+                        newCompany.setName(companyName);
+                        return companyRepository.save(newCompany);
+                    });
+            existingLead.setCompany(company);
+            leadService.save(existingLead);
+            return "redirect:/leads";
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("errorMessage", "Ошибка при сохранении: " + e.getMessage());
+            model.addAttribute("lead", formLead);
+            return "spring/edit";
+        }
     }
 
     @PostMapping("/leads/{id}/delete")

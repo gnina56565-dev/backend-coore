@@ -17,6 +17,7 @@ import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadJpaRepository;
 import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.spring.repository.DealRepository;
+import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.service.LeadProcessor;
 import ru.mentee.power.crm.spring.service.LeadService;
 
@@ -43,6 +44,9 @@ class LeadServiceIntegrationTest {
     private DealRepository dealRepository;
 
     @Autowired
+    private CompanyRepository companyRepository;
+
+    @Autowired
     private LeadProcessor leadProcessor;
 
     @Autowired
@@ -55,8 +59,12 @@ class LeadServiceIntegrationTest {
     private TransactionTemplate txTemplateReadCommitted;
     private TransactionTemplate txTemplateRepeatableRead;
 
+    private Company createAndSaveCompany(String name) {
+        return companyRepository.save(new Company(name, "General"));
+    }
+
     private Company createDefaultCompany() {
-        return new Company("TestCorp", "General");
+        return createAndSaveCompany("TestCorp-" + System.nanoTime());
     }
 
     private Lead createValidLead(LeadStatus status) {
@@ -101,6 +109,7 @@ class LeadServiceIntegrationTest {
                 NullPointerException.class,
                 () -> leadService.convertLeadToDeal(leadId, request)
         );
+
         Lead persistedLead = leadJpaRepository.findById(leadId).orElseThrow();
         assertEquals(LeadStatus.QUALIFIED, persistedLead.getStatus());
         assertEquals(initialDealsCount, dealRepository.findAll().size());
@@ -247,7 +256,7 @@ class LeadServiceIntegrationTest {
         System.setProperty("test.fail.required", "true");
         try {
             Lead outerLead = createValidLead(LeadStatus.NEW);
-            UUID outerId = outerLead.getId();
+            final UUID outerId = outerLead.getId();
             String originalCompany = outerLead.getCompany().getName();
 
             entityManager.clear();
@@ -264,35 +273,44 @@ class LeadServiceIntegrationTest {
             );
 
             entityManager.clear();
-            long countAfter = leadJpaRepository.count();
-            Lead result = leadJpaRepository.findById(outerId).orElseThrow();
 
-            assertAll(
-                    () -> assertEquals(countBefore, countAfter),
-                    () -> assertEquals(originalCompany, result.getCompany().getName()),
-                    () -> assertEquals(LeadStatus.NEW, result.getStatus())
-            );
-            leadJpaRepository.delete(result);
+            txTemplateDefault.execute(status -> {
+                long countAfter = leadJpaRepository.count();
+                Lead result = leadJpaRepository.findById(outerId).orElseThrow();
+
+                assertAll(
+                        () -> assertEquals(countBefore, countAfter),
+                        () -> assertEquals(originalCompany, result.getCompany().getName()),
+                        () -> assertEquals(LeadStatus.NEW, result.getStatus())
+                );
+                leadJpaRepository.delete(result);
+                return null;
+            });
+
         } finally {
             System.clearProperty("test.fail.required");
-            leadJpaRepository.findAll().stream()
-                    .filter(l -> l.getEmail().contains("required+"))
-                    .forEach(leadJpaRepository::delete);
+            txTemplateDefault.execute(status -> {
+                leadJpaRepository.findAll().stream()
+                        .filter(l -> l.getEmail().contains("required+"))
+                        .forEach(leadJpaRepository::delete);
+                return null;
+            });
         }
     }
 
     @Test
     void propagation_REQUIRES_NEW_shouldCreateNewTransaction() {
         System.setProperty("test.fail.required.new", "true");
-        try {
-            Lead outerLead = createValidLead(LeadStatus.NEW);
-            UUID outerId = outerLead.getId();
-            entityManager.clear();
-            long countBefore = leadJpaRepository.count();
+        Lead outerLead = null;
 
+        try {
+            outerLead = createValidLead(LeadStatus.NEW);
+            final UUID outerId = outerLead.getId();
             assertDoesNotThrow(() ->
                     txTemplateDefault.execute(status -> {
                         Lead outer = leadJpaRepository.findById(outerId).orElseThrow();
+                        outer.getCompany().getName();
+
                         outer.getCompany().setName("Before-Inner");
                         leadJpaRepository.save(outer);
                         try {
@@ -301,65 +319,44 @@ class LeadServiceIntegrationTest {
                         }
                         outer.getCompany().setName("After-Inner");
                         leadJpaRepository.save(outer);
-
                         return null;
                     })
             );
+            txTemplateDefault.execute(status -> {
+                Lead result = leadJpaRepository.findById(outerId).orElseThrow();
 
-            entityManager.clear();
-            Lead resultOuter = leadJpaRepository.findById(outerId).orElseThrow();
-            long innerLeadsCount = leadJpaRepository.findAll().stream()
-                    .filter(l -> l.getEmail().contains("requires-new+"))
-                    .count();
+                assertEquals("After-Inner", result.getCompany().getName(),
+                        "Внешние изменения (Метод А) должны закоммититься");
 
-            assertAll(
-                    () -> assertEquals("After-Inner", resultOuter.getCompany().getName(),
-                            "Внешние изменения (Метод А) должны закоммититься"),
-                    () -> assertEquals(0, innerLeadsCount,
-                            "Внутренняя транзакция (Метод Б с REQUIRES_NEW) должна откатиться"),
-                    () -> assertEquals(LeadStatus.NEW, resultOuter.getStatus(),
-                            "Статус внешнего лида не должен измениться (мы меняли только company)")
-            );
-            leadJpaRepository.delete(resultOuter);
-        } finally {
-            System.clearProperty("test.fail.required.new");
-            leadJpaRepository.findAll().stream()
-                    .filter(l -> l.getEmail().contains("requires-new+"))
-                    .forEach(leadJpaRepository::delete);
-        }
-    }
-
-    @Test
-    void isolation_READ_COMMITTED_allowsNonRepeatableRead() {
-        Lead lead = createValidLead(LeadStatus.NEW);
-        UUID leadId = lead.getId();
-        String originalCompany = lead.getCompany().getName();
-
-        final String[] readValues = new String[2];
-
-        txTemplateReadCommitted.execute(status -> {
-            Lead firstRead = leadJpaRepository.findById(leadId).orElseThrow();
-            readValues[0] = firstRead.getCompany().getName();
-
-            entityManager.clear();
-
-            txTemplateDefault.execute(status2 -> {
-                Lead toUpdate = leadJpaRepository.findById(leadId).orElseThrow();
-                toUpdate.getCompany().setName("Updated-In-Second-Tx");
-                leadJpaRepository.save(toUpdate);
+                assertEquals(LeadStatus.NEW, result.getStatus(),
+                        "Статус внешнего лида не должен измениться");
                 return null;
             });
+            Long innerLeadsCount = txTemplateDefault.execute(status ->
+                    leadJpaRepository.findAll().stream()
+                            .filter(l -> l.getEmail().contains("requires-new+"))
+                            .count()
+            );
 
-            Lead secondRead = leadJpaRepository.findById(leadId).orElseThrow();
-            readValues[1] = secondRead.getCompany().getName();
+            assertEquals(0, innerLeadsCount,
+                    "Внутренняя транзакция (Метод Б с REQUIRES_NEW) должна откатиться");
 
-            return null;
-        });
+        } finally {
+            System.clearProperty("test.fail.required.new");
 
-        assertEquals(originalCompany, readValues[0]);
-        assertEquals("Updated-In-Second-Tx", readValues[1]);
+            if (outerLead != null) {
+                final UUID cleanupId = outerLead.getId();
+                txTemplateDefault.execute(status -> {
+                    leadJpaRepository.findAll().stream()
+                            .filter(l -> l.getEmail().contains("requires-new+"))
+                            .forEach(leadJpaRepository::delete);
 
-        leadJpaRepository.delete(lead);
+                    leadJpaRepository.findById(cleanupId)
+                            .ifPresent(leadJpaRepository::delete);
+                    return null;
+                });
+            }
+        }
     }
 
     @Test

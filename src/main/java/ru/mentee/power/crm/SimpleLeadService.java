@@ -3,7 +3,7 @@ package ru.mentee.power.crm;
 import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.spring.repository.InMemoryLeadRepository;
+import ru.mentee.power.crm.repository.InMemoryLeadRepository;
 
 import java.util.List;
 import java.util.Optional;

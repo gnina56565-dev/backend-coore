@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.model.Company;
-import ru.mentee.power.crm.spring.repository.InMemoryLeadRepository;
 
 import java.util.List;
 import java.util.Optional;

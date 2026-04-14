@@ -1,4 +1,4 @@
-package ru.mentee.power.crm.spring.repository;
+package ru.mentee.power.crm.repository;
 
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
@@ -8,7 +8,6 @@ import org.springframework.data.repository.query.FluentQuery;
 import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.repository.LeadJpaRepository;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -35,6 +34,7 @@ public class InMemoryLeadRepository implements LeadJpaRepository {
             lead.setId(UUID.randomUUID());
         }
         storage.put(lead.getId(), lead);
+        emailIndex.put(lead.getEmail(), lead.getId());
         return lead;
     }
 
@@ -166,12 +166,20 @@ public class InMemoryLeadRepository implements LeadJpaRepository {
 
     @Override
     public void deleteById(UUID uuid) {
-
+        Lead lead = storage.remove(uuid);
+        if (lead != null) {
+            emailIndex.remove(lead.getEmail());
+        }
     }
 
     @Override
     public void delete(Lead entity) {
-
+        if (entity != null && entity.getId() != null) {
+            Lead removed = storage.remove(entity.getId());
+            if (removed != null) {
+                emailIndex.remove(removed.getEmail());
+            }
+        }
     }
 
     @Override
