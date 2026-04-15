@@ -49,6 +49,11 @@ public class InMemoryLeadRepository implements LeadJpaRepository {
     }
 
     @Override
+    public Optional<Lead> findByEmailIgnoreCase(String email) {
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<Lead> findByEmailNative(String email) {
         return Optional.empty();
     }

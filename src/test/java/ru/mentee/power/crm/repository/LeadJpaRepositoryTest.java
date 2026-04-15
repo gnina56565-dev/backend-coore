@@ -63,6 +63,22 @@ class LeadJpaRepositoryTest {
     }
 
     @Test
+    void shouldFindByEmailIgnoreCase_whenExists() {
+        Company companyAcme = companyRepository.save(new Company("ACME Corp", "General"));
+        Lead lead = new Lead("Test@example.com", companyAcme, LeadStatus.NEW);
+        repository.save(lead);
+        Optional<Lead> found = repository.findByEmailIgnoreCase("test@example.com");
+        assertThat(found).isPresent();
+        assertThat(found.get().getEmail()).isEqualTo("Test@example.com");
+    }
+
+    @Test
+    void shouldReturnEmpty_whenEmailNotFound() {
+        Optional<Lead> found = repository.findByEmailIgnoreCase("noneexistent@exmaple.com");
+        assertThat(found).isEmpty();
+    }
+
+    @Test
     void findByEmail_shouldReturnLead_whenExists() {
         Optional<Lead> found = repository.findByEmail("john@example.com");
 
