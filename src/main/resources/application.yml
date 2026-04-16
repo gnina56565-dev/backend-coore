@@ -10,7 +10,7 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
-    drop-first: false
+    drop-first: true
   application:
     name: crm
   jte:

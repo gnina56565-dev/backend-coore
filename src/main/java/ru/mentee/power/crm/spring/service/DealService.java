@@ -40,7 +40,9 @@ public class DealService {
     }
 
     public List<Deal> getAllDeals() {
-        return dealRepository.findAll();
+        List<Deal> deals = dealRepository.findAll();
+        System.out.println("DEBUG: Found " + deals.size() + " deals in DB!"); // Добавьте эту строку
+        return deals;
     }
 
     public Map<DealStatus, List<Deal>> getDealsByStatusForKanban() {

@@ -20,7 +20,12 @@
         @for(Deal deal : dealsByStatus.getOrDefault(status, java.util.List.of()))
           <div class="bg-gray-50 p-3 mb-2 rounded border">
             <p class="font-semibold">${deal.getAmount()} ₽</p>
-            <p class="text-sm text-gray-600">Lead: ${deal.getLeadId().toString()}</p>
+
+            @if(deal.getLeadId() != null)
+              <p class="text-sm text-gray-600">Lead: ${deal.getLeadId().toString()}</p>
+            @else
+              <p class="text-sm text-gray-400">Lead: N/A</p>
+            @endif
 
             <form method="post" action="/deals/${deal.getId().toString()}/status" class="mt-2">
               <select name="newStatus" class="w-full text-sm border rounded p-1 bg-white">
