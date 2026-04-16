@@ -43,8 +43,12 @@ class JpaLeadRepositoryTest {
 
     @BeforeEach
     void setUp() {
-        leadJpaRepository.deleteAll();
-        companyRepository.deleteAll();
+        entityManager.getEntityManager().createNativeQuery("DELETE FROM deal_product").executeUpdate();
+        entityManager.getEntityManager().createNativeQuery("DELETE FROM deals").executeUpdate();
+        entityManager.getEntityManager().createNativeQuery("DELETE FROM contacts").executeUpdate();
+        entityManager.getEntityManager().createNativeQuery("DELETE FROM leads").executeUpdate();
+        entityManager.getEntityManager().createNativeQuery("DELETE FROM companies").executeUpdate();
+
         entityManager.flush();
         entityManager.clear();
 

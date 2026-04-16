@@ -10,7 +10,11 @@ import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
@@ -279,7 +283,8 @@ public class InMemoryLeadRepository implements LeadJpaRepository {
     }
 
     @Override
-    public <S extends Lead, R> R findBy(Example<S> example, Function<FluentQuery.FetchableFluentQuery<S>, R> queryFunction) {
+    public <S extends Lead, R> R findBy(Example<S> example,
+                                        Function<FluentQuery.FetchableFluentQuery<S>, R> queryFunction) {
         return null;
     }
 

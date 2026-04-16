@@ -7,16 +7,25 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.http.HttpStatus;
+import org.springframework.ui.Model;
+import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.domain.Deal;
 import ru.mentee.power.crm.domain.DealStatus;
 import ru.mentee.power.crm.model.Lead;
+import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.service.DealService;
 import ru.mentee.power.crm.spring.service.LeadService;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,7 +40,7 @@ class DealControllerTest {
     private LeadService leadService;
 
     @Mock
-    private org.springframework.ui.Model model;
+    private Model model;
 
     private DealController controller;
 
@@ -72,28 +81,30 @@ class DealControllerTest {
     @Test
     void showConvertForm_WhenLeadExists_ShouldAddLeadToModelAndReturnView() {
         UUID leadId = UUID.randomUUID();
-        Lead lead = new Lead("test@example.com", null, ru.mentee.power.crm.model.LeadStatus.NEW);
+        Lead lead = new Lead("test@example.com", null, LeadStatus.NEW);
 
         when(leadService.findById(leadId)).thenReturn(Optional.of(lead));
 
         String view = controller.showConvertForm(leadId, model);
 
         assertThat(view).isEqualTo("deals/convert");
-        verify(model).addAttribute("lead", Optional.of(lead));
+        verify(model).addAttribute("lead", lead);
         verify(leadService).findById(leadId);
     }
 
     @Test
-    void showConvertForm_WhenLeadNotFound_ShouldAddEmptyOptionalAndReturnView() {
+    void showConvertForm_WhenLeadNotFound_ShouldThrowException() {
         UUID leadId = UUID.randomUUID();
 
         when(leadService.findById(leadId)).thenReturn(Optional.empty());
 
-        String view = controller.showConvertForm(leadId, model);
+        assertThatThrownBy(() -> controller.showConvertForm(leadId, model))
+                .isInstanceOf(ResponseStatusException.class)
+                .extracting("statusCode")
+                .isEqualTo(HttpStatus.NOT_FOUND);
 
-        assertThat(view).isEqualTo("deals/convert");
-        verify(model).addAttribute("lead", Optional.empty());
-        verify(leadService).findById(leadId);
+        verify(model, org.mockito.Mockito.never()).addAttribute(org.mockito.ArgumentMatchers.anyString(),
+                org.mockito.ArgumentMatchers.any());
     }
 
     @Test

@@ -6,7 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.server.ResponseStatusException;
 import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Lead;
@@ -70,7 +75,8 @@ public class LeadController {
             if (cause instanceof org.hibernate.exception.ConstraintViolationException ||
                     (cause.getMessage() != null && cause.getMessage().contains("duplicate key"))) {
 
-                bindingResult.rejectValue("email", "error.email.duplicate", "Пользователь с таким Email уже существует!");
+                bindingResult.rejectValue("email", "error.email.duplicate",
+                        "Пользователь с таким Email уже существует!");
                 model.addAttribute("errors", bindingResult);
                 return;
             }
@@ -138,12 +144,22 @@ public class LeadController {
 
     @PostMapping("/leads/{id}/delete")
     public String deleteLead(@PathVariable UUID id) {
-        leadService.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Lead not found with id: " + id
-                ));
-        leadService.delete(id);
+        try {
+            leadService.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            "Lead not found with id: " + id
+                    ));
+
+            leadService.delete(id);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            System.err.println("Не удалось удалить лида: к нему привязаны сделки. " + e.getMessage());
+            return "redirect:/leads?error=cannot_delete_linked";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/leads?error=unknown";
+        }
+
         return "redirect:/leads";
     }
 
@@ -151,11 +167,14 @@ public class LeadController {
     public String listLeads(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String status,
+            @RequestParam(required = false) String error,
             Model model) {
+
         List<Lead> leads = leadService.findLeads(search, status);
         model.addAttribute("leads", leads);
         model.addAttribute("search", search != null ? search : "");
         model.addAttribute("status", status != null ? status : "");
+        model.addAttribute("error", error);
         model.addAttribute("currentFilter", status != null && !status.isBlank()
                 ? LeadStatus.valueOf(status.toUpperCase())
                 : null);

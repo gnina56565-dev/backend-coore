@@ -99,7 +99,7 @@ class LeadControllerTest {
         Lead lead2 = new Lead("b@example.com", new Company("C2", null), LeadStatus.CONTACTED);
         when(leadService.findLeads(null, null)).thenReturn(Arrays.asList(lead1, lead2));
 
-        String result = controller.listLeads(null, null, model);
+        String result = controller.listLeads(null, null, " ", model);
 
         assertThat(result).isEqualTo("spring/list");
         verify(model).addAttribute("leads", Arrays.asList(lead1, lead2));
@@ -113,7 +113,7 @@ class LeadControllerTest {
     void listLeads_WithFilters_ShouldPassFiltersToService() {
         when(leadService.findLeads("john", "NEW")).thenReturn(List.of());
 
-        controller.listLeads("john", "NEW", model);
+        controller.listLeads("john", "NEW", "", model);
 
         verify(leadService).findLeads("john", "NEW");
         verify(model).addAttribute("search", "john");
@@ -161,15 +161,13 @@ class LeadControllerTest {
     }
 
     @Test
-    void deleteLead_WhenNotFound_ShouldThrowException() {
+    void deleteLead_WhenNotFound_ShouldRedirectWithError() {
         UUID id = UUID.randomUUID();
         when(leadService.findById(id)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> controller.deleteLead(id))
-                .isInstanceOf(ResponseStatusException.class)
-                .extracting("statusCode")
-                .isEqualTo(HttpStatus.NOT_FOUND);
+        String result = controller.deleteLead(id);
 
+        assertThat(result).isEqualTo("redirect:/leads?error=unknown");
         verify(leadService, never()).delete(any());
     }
 
