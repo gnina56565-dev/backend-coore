@@ -108,3 +108,12 @@ jte {
     contentType = gg.jte.ContentType.Html
     binaryStaticContent = false
 }
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.7
+            }
+        }
+    }
+}
