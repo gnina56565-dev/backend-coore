@@ -14,6 +14,7 @@ import jakarta.persistence.Version;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import ru.mentee.power.crm.entity.DealProduct;
 
 import java.math.BigDecimal;
@@ -24,6 +25,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 @Getter
+@Setter
 @Entity
 @Table(name = "deals")
 @NoArgsConstructor

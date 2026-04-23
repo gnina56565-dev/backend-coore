@@ -8,9 +8,10 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.model.Company;
+import ru.mentee.power.crm.spring.repository.CompanyRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,29 +27,55 @@ class LeadJpaRepositoryTest {
     @Autowired
     private LeadJpaRepository repository;
 
+    @Autowired
+    private DealJpaRepository dealRepository;
+
+    @Autowired
+    private CompanyRepository companyRepository;
+
     private Lead lead1;
     private Lead lead2;
 
     @BeforeEach
     void setUp() {
-        Company company1 = new Company("Company1", "General");
-        Company companyAcme = new Company("ACME Corp", "General");
-        Company company2 = new Company("Company2", "General");
-        Company companyTechInc = new Company("Tech Inc", "General");
-        repository.deleteAll();
-        lead1 = new Lead("test1@example.com", company1, LeadStatus.NEW);
-        lead1.setEmail("john@example.com");
-        lead1.setCompany(companyAcme);
-        lead1.setStatus(LeadStatus.NEW);
-        lead1.setCreatedAt(LocalDateTime.now().minusDays(5));
-        repository.save(lead1);
+        if (dealRepository != null) {
+            dealRepository.deleteAll();
+        }
+        if (repository != null) {
+            repository.deleteAll();
+        }
+        if (companyRepository != null) {
+            companyRepository.deleteAll();
+        }
 
-        lead2 = new Lead("test2@example.com", company2, LeadStatus.NEW);
-        lead2.setEmail("jane@example.com");
-        lead2.setCompany(companyTechInc);
-        lead2.setStatus(LeadStatus.CONTACTED);
+        Company company1 = companyRepository.save(new Company("Company1", "General"));
+        Company companyAcme = companyRepository.save(new Company("ACME Corp", "General"));
+        Company company2 = companyRepository.save(new Company("Company2", "General"));
+        Company companyTechInc = companyRepository.save(new Company("Tech Inc", "General"));
+
+        lead1 = new Lead("john@example.com", companyAcme, LeadStatus.NEW);
+        lead1.setCreatedAt(LocalDateTime.now().minusDays(5));
+        lead1 = repository.save(lead1);
+
+        lead2 = new Lead("jane@example.com", companyTechInc, LeadStatus.CONTACTED);
         lead2.setCreatedAt(LocalDateTime.now().minusDays(2));
-        repository.save(lead2);
+        lead2 = repository.save(lead2);
+    }
+
+    @Test
+    void shouldFindByEmailIgnoreCase_whenExists() {
+        Company companyAcme = companyRepository.save(new Company("ACME Corp", "General"));
+        Lead lead = new Lead("Test@example.com", companyAcme, LeadStatus.NEW);
+        repository.save(lead);
+        Optional<Lead> found = repository.findByEmailIgnoreCase("test@example.com");
+        assertThat(found).isPresent();
+        assertThat(found.get().getEmail()).isEqualTo("Test@example.com");
+    }
+
+    @Test
+    void shouldReturnEmpty_whenEmailNotFound() {
+        Optional<Lead> found = repository.findByEmailIgnoreCase("noneexistent@exmaple.com");
+        assertThat(found).isEmpty();
     }
 
     @Test
@@ -56,7 +83,7 @@ class LeadJpaRepositoryTest {
         Optional<Lead> found = repository.findByEmail("john@example.com");
 
         assertThat(found).isPresent();
-        assertThat(found.get().getCompany()).isEqualTo("ACME Corp");
+        assertThat(found.get().getCompany().getName()).isEqualTo("ACME Corp");
     }
 
     @Test
@@ -98,16 +125,18 @@ class LeadJpaRepositoryTest {
     }
 
     @Test
-    void shouldExistsByEmail_WhenEmailNotExists() {
+    void shouldExistsByEmail_WhenEmailExists() {
         boolean exists = repository.existsByEmail("john@example.com");
         assertThat(exists).isTrue();
     }
 
     @Test
     void shouldFindByStatusAndCompany_Valid() {
-        Company company = new Company("ACME Corp", "General");
-        List<Lead> found = repository.findByStatusAndCompany(LeadStatus.NEW, company);
+        Company companyAcme = companyRepository.findByName("ACME Corp").orElseThrow();
 
+        List<Lead> found = repository.findByStatusAndCompany(LeadStatus.NEW, companyAcme);
+
+        assertThat(found).hasSize(1);
         assertThat(found.get(0).getEmail()).isEqualTo("john@example.com");
     }
 

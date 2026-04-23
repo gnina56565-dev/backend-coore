@@ -19,6 +19,8 @@ import java.util.UUID;
 
 public interface LeadJpaRepository extends JpaRepository<Lead, UUID> {
 
+    Optional<Lead> findByEmailIgnoreCase(String email);
+
     @Query(value = "SELECT * FROM leads WHERE email = ?1", nativeQuery = true)
     Optional<Lead> findByEmailNative(String email);
 

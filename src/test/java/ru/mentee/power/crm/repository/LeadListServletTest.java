@@ -17,7 +17,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class InMemoryLeadJpaRepositoryTest {
+class LeadListServletTest {
 
     private InMemoryLeadRepository repository;
     private Lead lead1;

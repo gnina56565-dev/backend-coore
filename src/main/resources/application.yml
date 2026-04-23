@@ -7,10 +7,14 @@ gg:
     templateLocation: src/main/resources/jte
 
 spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
-    drop-first: false
+    drop-first: true
   application:
     name: crm
   jte:

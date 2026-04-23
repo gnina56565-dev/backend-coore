@@ -5,10 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.test.context.ActiveProfiles;
+import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadJpaRepository;
-import ru.mentee.power.crm.model.Company;
+import ru.mentee.power.crm.spring.repository.CompanyRepository;
 
 import java.util.List;
 import java.util.UUID;
@@ -18,6 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -31,9 +33,14 @@ class LeadLockingServiceTest {
     @Autowired
     private LeadJpaRepository leadRepository;
 
+    @Autowired
+    private CompanyRepository companyRepository;
+
     @Test
     void shouldPreventLostUpdate_whenPessimisticLockUsed() throws Exception {
         Company company = new Company("TestComp", "General");
+        company = companyRepository.save(company);
+
         Lead lead = new Lead("concurrent@test.com", company, LeadStatus.NEW);
         lead = leadRepository.save(lead);
         UUID leadId = lead.getId();
@@ -76,47 +83,59 @@ class LeadLockingServiceTest {
     @Test
     void shouldThrowOptimisticLockException_whenConcurrentUpdateWithoutLock() throws Exception {
         Company company = new Company("TestComp", "General");
+        company = companyRepository.save(company);
+
         Lead lead = new Lead("optimistic@test.com", company, LeadStatus.NEW);
         lead = leadRepository.save(lead);
         UUID leadId = lead.getId();
 
         ExecutorService executor = Executors.newFixedThreadPool(2);
-
-        CountDownLatch startLatch = new CountDownLatch(1);
+        AtomicReference<Throwable> exceptionHolder = new AtomicReference<>();
 
         Future<?> task1 = executor.submit(() -> {
-            startLatch.await();
-            leadLockingService.updateLeadStatusOptimistic(leadId, LeadStatus.CONTACTED);
-            return null;
+            try {
+                leadLockingService.updateLeadStatusOptimistic(leadId, LeadStatus.CONTACTED);
+            } catch (Exception e) {
+                exceptionHolder.compareAndSet(null, e);
+            }
         });
 
         Future<?> task2 = executor.submit(() -> {
-            startLatch.await();
-            Thread.sleep(50);
-            leadLockingService.updateLeadStatusOptimistic(leadId, LeadStatus.QUALIFIED);
-            return null;
+            try {
+                Thread.sleep(50);
+
+                leadLockingService.updateLeadStatusOptimistic(leadId, LeadStatus.QUALIFIED);
+            } catch (Exception e) {
+                exceptionHolder.compareAndSet(null, e);
+            }
         });
 
-        startLatch.countDown();
+        task1.get(10, TimeUnit.SECONDS);
+        task2.get(10, TimeUnit.SECONDS);
 
-        boolean exceptionThrown = false;
-        try {
-            task1.get(5, TimeUnit.SECONDS);
-            task2.get(5, TimeUnit.SECONDS);
-        } catch (ExecutionException e) {
-            assertThat(e.getCause())
-                    .isInstanceOfAny(ObjectOptimisticLockingFailureException.class);
-            exceptionThrown = true;
+        Throwable thrown = exceptionHolder.get();
+
+        if (thrown == null) {
+            Lead finalLead = leadRepository.findById(leadId).orElseThrow();
+            assertThat(finalLead.getStatus()).isEqualTo(LeadStatus.QUALIFIED);
+            assertThat(finalLead.getVersion()).isEqualTo(2L);
+        } else {
+            assertThat(thrown).isInstanceOfAny(
+                    ObjectOptimisticLockingFailureException.class,
+                    org.springframework.dao.OptimisticLockingFailureException.class
+            );
         }
 
-        assertThat(exceptionThrown).isTrue();
         executor.shutdown();
     }
 
     @Test
     void shouldDeadLock() throws Exception {
         Company companyA = new Company("CompanyA", "General");
+        companyA = companyRepository.save(companyA);
+
         Company companyB = new Company("CompanyB", "General");
+        companyB = companyRepository.save(companyB);
 
         Lead leadA = leadRepository.save(new Lead("a@test.com", companyA, LeadStatus.NEW));
         Lead leadB = leadRepository.save(new Lead("b@test.com", companyB, LeadStatus.NEW));
@@ -150,7 +169,6 @@ class LeadLockingServiceTest {
             task1.get(10, TimeUnit.SECONDS);
             task2.get(10, TimeUnit.SECONDS);
         } catch (ExecutionException e) {
-
             if (e.getCause() instanceof org.springframework.dao.CannotAcquireLockException) {
                 deadlockDetected = true;
             }

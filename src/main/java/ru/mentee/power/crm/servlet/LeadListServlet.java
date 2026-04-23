@@ -8,8 +8,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import ru.mentee.power.crm.SimpleLeadService;
 import ru.mentee.power.crm.model.Lead;
-import ru.mentee.power.crm.spring.service.LeadService;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -24,7 +24,7 @@ public class LeadListServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         try {
-            Path templatePath = Path.of("src/main/jte").toAbsolutePath();
+            Path templatePath = Path.of("src/main/resources/jte").toAbsolutePath();
             DirectoryCodeResolver codeResolver = new DirectoryCodeResolver(templatePath);
             this.templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
 
@@ -38,8 +38,8 @@ public class LeadListServlet extends HttpServlet {
             throws ServletException, IOException {
 
         try {
-            LeadService service = (LeadService) getServletContext().getAttribute("leadService");
-            List<Lead> leads = service.findAll();
+            SimpleLeadService leadService = (SimpleLeadService) getServletContext().getAttribute("leadService");
+            List<Lead> leads = leadService.findAll();
 
             Map<String, Object> model = new HashMap<>();
             model.put("leads", leads);
@@ -47,7 +47,7 @@ public class LeadListServlet extends HttpServlet {
             response.setContentType("text/html; charset=UTF-8");
 
             StringOutput output = new StringOutput();
-            templateEngine.render("servlet/leads/list.jte", model, output);
+            templateEngine.render("leads/list.jte", model, output);
             String html = output.toString();
 
             if (html.trim().startsWith("@") || html.contains("TemplateNotFoundException")) {

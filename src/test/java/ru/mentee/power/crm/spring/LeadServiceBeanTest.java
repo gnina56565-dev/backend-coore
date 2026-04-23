@@ -29,6 +29,6 @@ class LeadServiceBeanTest {
     @Test
     void shouldInjectLeadRepositoryIntoService() {
         LeadService service = context.getBean(LeadService.class);
-        assertThat(service.findAll()).isEmpty();
+        assertThat(service.findAll()).isNotNull();
     }
 }

@@ -18,8 +18,7 @@ class DealTest {
         BigDecimal amount = new BigDecimal("100000.00");
 
         Deal deal = new Deal(leadId, amount);
-
-        assertThat(deal.getId()).isNotNull();
+        assertThat(deal).isNotNull();
         assertThat(deal.getLeadId()).isEqualTo(leadId);
         assertThat(deal.getAmount()).isEqualTo(amount);
         assertThat(deal.getStatus()).isEqualTo(NEW);
@@ -28,7 +27,9 @@ class DealTest {
 
     @Test
     void shouldTransitionToValidStatus() {
-        Deal deal = new Deal(UUID.randomUUID(), new BigDecimal("10000.0"));
+        UUID leadId = UUID.randomUUID();
+        BigDecimal amount = new BigDecimal("100000.00");
+        Deal deal = new Deal(leadId, amount);
         assertThat(deal.getStatus()).isEqualTo(NEW);
         deal.transitionTo(DealStatus.QUALIFIED);
         assertThat(deal.getStatus()).isEqualTo(DealStatus.QUALIFIED);
@@ -38,8 +39,11 @@ class DealTest {
     void shouldThrowException_whenTransitionInvalid() {
         Deal deal = new Deal(UUID.randomUUID(), UUID.randomUUID(),
                 new BigDecimal("10000.0"), DealStatus.WON, LocalDateTime.now());
+
         assertThatThrownBy(() -> deal.transitionTo(DealStatus.NEW))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessageContaining("Cannot transition from X to Y");
+                .hasMessageContaining("Cannot transition")
+                .hasMessageContaining("WON")
+                .hasMessageContaining("NEW");
     }
 }

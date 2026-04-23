@@ -17,3 +17,14 @@ databaseChangeLog:
   - include:
       file: migrations/006_create_deal_product.sql
       relativeToChangelogFile: true
+
+  # Измененный changeSet без preConditions
+  - changeSet:
+      id: add-demo-data
+      author: dev
+      sqlFile:
+        path: changes/demo-data.sql
+        relativeToChangelogFile: true
+        splitStatements: true
+        stripComments: true
+        endDelimiter: ;
