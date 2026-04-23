@@ -6,6 +6,17 @@ plugins {
     id 'org.springframework.boot' version '3.5.10'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'gg.jte.gradle' version '3.1.16'
+    id 'com.diffplug.spotless' version '6.25.0'
+}
+spotless {
+    java {
+        target 'src/${*}.java'
+        targetExclude 'build/**'
+        googleJavaFormat('1.22.0')
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }
 
 group = 'ru.mentee.power'
