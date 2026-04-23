@@ -4,11 +4,17 @@ import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 import ru.mentee.power.crm.domain.Deal;
 import ru.mentee.power.crm.entity.DealProduct;
+import ru.mentee.power.crm.model.Company;
+import ru.mentee.power.crm.model.Lead;
+import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.model.Product;
 import ru.mentee.power.crm.repository.DealJpaRepository;
+import ru.mentee.power.crm.spring.repository.CompanyRepository;
+import ru.mentee.power.crm.spring.repository.LeadRepository;
 import ru.mentee.power.crm.spring.repository.ProductJpaRepository;
 
 import java.math.BigDecimal;
@@ -18,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @Transactional
+@ActiveProfiles("test")
 class DealProductIntegrationTest {
 
   @Autowired
@@ -25,6 +32,12 @@ class DealProductIntegrationTest {
 
   @Autowired
   private ProductJpaRepository productRepository;
+
+  @Autowired
+  private CompanyRepository companyRepository;
+
+  @Autowired
+  private LeadRepository leadRepository;
 
   @Autowired
   private EntityManager entityManager;
@@ -77,23 +90,12 @@ class DealProductIntegrationTest {
 
   @Test
   void testEntityGraphSolvesNPlusOne() {
-    UUID companyId = UUID.randomUUID();
-    try {
-      entityManager.createNativeQuery("INSERT INTO companies (id, name) VALUES (?, 'Test Company')")
-          .setParameter(1, companyId).executeUpdate();
-    } catch (Exception e) {
-      throw new RuntimeException("Не удалось создать компанию. Проверьте структуру таблицы companies", e);
-    }
+    Company company = companyRepository.save(new Company("Test Company", "IT"));
 
-    UUID leadId = UUID.randomUUID();
-    try {
-      entityManager.createNativeQuery("INSERT INTO leads (id, email, company_id) VALUES (?, 'test@test.com', ?)")
-          .setParameter(1, leadId).setParameter(2, companyId).executeUpdate();
-    } catch (Exception e) {
-      throw new RuntimeException("Не удалось создать лид. Проверьте структуру таблицы leads", e);
-    }
+    Lead lead = new Lead("test@test.com", company, LeadStatus.NEW);
+    lead = leadRepository.save(lead);
 
-    Deal deal = new Deal(leadId, new BigDecimal("205000"));
+    Deal deal = new Deal(lead.getId(), new BigDecimal("205000"));
 
     Product p1 = createAndSaveProduct("Ноутбук", "SKU-1", new BigDecimal("90000"));
     Product p2 = createAndSaveProduct("Монитор", "SKU-2", new BigDecimal("25000"));
@@ -122,7 +124,6 @@ class DealProductIntegrationTest {
     UUID dealId = savedDeal.getId();
 
     entityManager.flush();
-
     entityManager.clear();
 
     Deal dealWithoutGraph = dealRepository.findById(dealId).orElseThrow();

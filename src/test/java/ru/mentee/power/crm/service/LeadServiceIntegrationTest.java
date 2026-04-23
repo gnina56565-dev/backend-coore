@@ -5,19 +5,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 import ru.mentee.power.crm.domain.Deal;
 import ru.mentee.power.crm.exception.IllegalLeadStateException;
+import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.CreateDealRequest;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadJpaRepository;
-import ru.mentee.power.crm.model.Company;
-import ru.mentee.power.crm.spring.repository.DealRepository;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
+import ru.mentee.power.crm.spring.repository.DealRepository;
 import ru.mentee.power.crm.spring.service.LeadProcessor;
 import ru.mentee.power.crm.spring.service.LeadService;
 
@@ -31,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ActiveProfiles("test")
 @SpringBootTest
 class LeadServiceIntegrationTest {
 
