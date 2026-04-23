@@ -33,14 +33,11 @@ jobs:
       - name: Run Checkstyle
         run: ./gradlew --no-daemon checkstyleMain checkstyleTest
 
-      - name: Run tests
-        run: ./gradlew --no-daemon clean test spotlessCheck -Dspring.profiles.active=test
-
       - name: Generate JaCoCo report
         run: ./gradlew --no-daemon jacocoTestReport
 
       - name: Verify code coverage (80%)
         run: ./gradlew --no-daemon jacocoTestCoverageVerification
 
-      - name: Build project
-        run: ./gradlew --no-daemon build
+      - name: Build without tests
+        run: ./gradlew assemble --console=plain

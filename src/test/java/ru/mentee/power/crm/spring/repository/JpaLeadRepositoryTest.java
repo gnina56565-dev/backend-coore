@@ -1,13 +1,17 @@
 package ru.mentee.power.crm.spring.repository;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.stereotype.Repository;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
@@ -18,8 +22,12 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @DataJpaTest
+@ActiveProfiles("test")
+@Transactional
+@AutoConfigureTestDatabase(replace = NONE)
 @ComponentScan(basePackages = "ru.mentee.power.crm.spring.repository", includeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = Repository.class))
 class JpaLeadRepositoryTest {
 
@@ -40,19 +48,14 @@ class JpaLeadRepositoryTest {
 
   @BeforeEach
   void setUp() {
-    entityManager.getEntityManager().createNativeQuery("DELETE FROM deal_product").executeUpdate();
-    entityManager.getEntityManager().createNativeQuery("DELETE FROM deals").executeUpdate();
-    entityManager.getEntityManager().createNativeQuery("DELETE FROM contacts").executeUpdate();
-    entityManager.getEntityManager().createNativeQuery("DELETE FROM leads").executeUpdate();
-    entityManager.getEntityManager().createNativeQuery("DELETE FROM companies").executeUpdate();
-
-    entityManager.flush();
-    entityManager.clear();
-
     testCompany = companyRepository.save(new Company("Test Corp", "IT"));
-
     Lead lead = new Lead("test@example.com", testCompany, LeadStatus.NEW);
     savedLead = repository.save(lead);
+  }
+
+  @AfterEach
+  void tearDown() {
+    companyRepository.deleteAll();
   }
 
   @Test

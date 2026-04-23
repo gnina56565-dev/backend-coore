@@ -27,9 +27,13 @@ class DatabaseConfigTest {
 
   @Test
   void shouldHaveLeadsTableCreated() {
-    Integer count = jdbcTemplate
-        .queryForObject("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'LEADS'", Integer.class);
+    boolean tableExists = jdbcTemplate.execute((ConnectionCallback<Boolean>) connection -> {
+      var resultSet = connection.getMetaData().getTables(null, null, "leads", new String[]{"TABLE"});
+      boolean exists = resultSet.next();
+      resultSet.close();
+      return exists;
+    });
 
-    assertThat(count).isEqualTo(1);
+    assertThat(tableExists).isTrue();
   }
 }
