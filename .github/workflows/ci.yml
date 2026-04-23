@@ -34,7 +34,7 @@ jobs:
         run: ./gradlew --no-daemon checkstyleMain checkstyleTest
 
       - name: Run tests
-        run: ./gradlew --no-daemon test
+        run: ./gradlew --no-daemon clean test spotlessCheck
 
       - name: Generate JaCoCo report
         run: ./gradlew --no-daemon jacocoTestReport
