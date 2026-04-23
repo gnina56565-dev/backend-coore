@@ -11,26 +11,27 @@ import java.util.UUID;
 
 // Упрощенная версия сервиса только для Servlet-стека
 public class SimpleLeadService {
-    private final InMemoryLeadRepository repository;
+  private final InMemoryLeadRepository repository;
 
-    public SimpleLeadService(InMemoryLeadRepository repository) {
-        this.repository = repository;
-    }
+  public SimpleLeadService(InMemoryLeadRepository repository) {
+    this.repository = repository;
+  }
 
-    public void addLead(String email, String companyName, LeadStatus status) {
-        // Создаем компанию "на лету" без сохранения в БД (так как нет CompanyRepository)
-        Company company = new Company(companyName, "General");
-        Lead lead = new Lead(email, company, status);
-        repository.save(lead);
-    }
+  public void addLead(String email, String companyName, LeadStatus status) {
+    // Создаем компанию "на лету" без сохранения в БД (так как нет
+    // CompanyRepository)
+    Company company = new Company(companyName, "General");
+    Lead lead = new Lead(email, company, status);
+    repository.save(lead);
+  }
 
-    public List<Lead> findAll() {
-        return repository.findAll();
-    }
+  public List<Lead> findAll() {
+    return repository.findAll();
+  }
 
-    public Optional<Lead> findById(UUID id) {
-        return repository.findById(id);
-    }
+  public Optional<Lead> findById(UUID id) {
+    return repository.findById(id);
+  }
 
-    // Добавьте другие методы, если они нужны сервлету
+  // Добавьте другие методы, если они нужны сервлету
 }

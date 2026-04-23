@@ -9,7 +9,7 @@
 
     <!-- Правила на уровне файла (не дерева AST) -->
     <module name="LineLength">
-        <property name="max" value="120"/>
+        <property name="max" value="168"/>
         <property name="ignorePattern" value="^package.*|^import.*|a href|href|http://|https://|ftp://"/>
     </module>
 

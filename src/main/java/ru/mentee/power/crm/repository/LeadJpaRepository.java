@@ -19,61 +19,58 @@ import java.util.UUID;
 
 public interface LeadJpaRepository extends JpaRepository<Lead, UUID> {
 
-    Optional<Lead> findByEmailIgnoreCase(String email);
+  Optional<Lead> findByEmailIgnoreCase(String email);
 
-    @Query(value = "SELECT * FROM leads WHERE email = ?1", nativeQuery = true)
-    Optional<Lead> findByEmailNative(String email);
+  @Query(value = "SELECT * FROM leads WHERE email = ?1", nativeQuery = true)
+  Optional<Lead> findByEmailNative(String email);
 
-    @Query(value = "SELECT * FROM leads WHERE email = ?", nativeQuery = true)
-    Optional<Lead> findByEmail(String email);
+  @Query(value = "SELECT * FROM leads WHERE email = ?", nativeQuery = true)
+  Optional<Lead> findByEmail(String email);
 
-    List<Lead> findByStatus(LeadStatus status);
+  List<Lead> findByStatus(LeadStatus status);
 
-    List<Lead> findByCompany(Company company);
+  List<Lead> findByCompany(Company company);
 
-    long countByStatus(LeadStatus status);
+  long countByStatus(LeadStatus status);
 
-    boolean existsByEmail(String email);
+  boolean existsByEmail(String email);
 
-    @Query("SELECT l FROM Lead l WHERE l.email LIKE CONCAT('%', :emailPart, '%')")
-    List<Lead> findByEmailContaining(@Param("emailPart") String emailPart);
+  @Query("SELECT l FROM Lead l WHERE l.email LIKE CONCAT('%', :emailPart, '%')")
+  List<Lead> findByEmailContaining(@Param("emailPart") String emailPart);
 
-    List<Lead> findByStatusAndCompany(LeadStatus status, Company company);
+  List<Lead> findByStatusAndCompany(LeadStatus status, Company company);
 
-    List<Lead> findByStatusOrderByCreatedAtDesc(LeadStatus status);
+  List<Lead> findByStatusOrderByCreatedAtDesc(LeadStatus status);
 
-    @Query("SELECT l FROM Lead l WHERE l.status IN :statuses")
-    List<Lead> findByStatusIn(@Param("statuses") List<LeadStatus> statuses);
+  @Query("SELECT l FROM Lead l WHERE l.status IN :statuses")
+  List<Lead> findByStatusIn(@Param("statuses") List<LeadStatus> statuses);
 
-    @Query("SELECT l FROM Lead l WHERE l.createdAt > :date")
-    List<Lead> findCreatedAfter(@Param("date") LocalDateTime date);
+  @Query("SELECT l FROM Lead l WHERE l.createdAt > :date")
+  List<Lead> findCreatedAfter(@Param("date") LocalDateTime date);
 
-    @Query("SELECT l FROM Lead l WHERE l.company = :company ORDER BY l.createdAt DESC")
-    List<Lead> findByCompanyOrderedByDate(@Param("company") Company company);
+  @Query("SELECT l FROM Lead l WHERE l.company = :company ORDER BY l.createdAt DESC")
+  List<Lead> findByCompanyOrderedByDate(@Param("company") Company company);
 
-    Page<Lead> findAll(Pageable pageable);
+  Page<Lead> findAll(Pageable pageable);
 
-    Page<Lead> findByCompany(Company company, Pageable pageable);
+  Page<Lead> findByCompany(Company company, Pageable pageable);
 
-    @Query("SELECT l FROM Lead l WHERE l.status IN :statuses")
-    Page<Lead> findByStatusInPaged(@Param("statuses") List<LeadStatus> statuses, Pageable pageable);
+  @Query("SELECT l FROM Lead l WHERE l.status IN :statuses")
+  Page<Lead> findByStatusInPaged(@Param("statuses") List<LeadStatus> statuses, Pageable pageable);
 
-    @Modifying(clearAutomatically = true)
-    @Query("UPDATE Lead l SET l.status = :newStatus WHERE l.status = :oldStatus")
-    int updateStatusBulk(
-            @Param("oldStatus") LeadStatus oldStatus,
-            @Param("newStatus") LeadStatus newStatus
-    );
+  @Modifying(clearAutomatically = true)
+  @Query("UPDATE Lead l SET l.status = :newStatus WHERE l.status = :oldStatus")
+  int updateStatusBulk(@Param("oldStatus") LeadStatus oldStatus, @Param("newStatus") LeadStatus newStatus);
 
-    @Modifying
-    @Query("DELETE FROM Lead l WHERE l.status = :status")
-    int deleteByStatusBulk(@Param("status") LeadStatus status);
+  @Modifying
+  @Query("DELETE FROM Lead l WHERE l.status = :status")
+  int deleteByStatusBulk(@Param("status") LeadStatus status);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT l FROM Lead l WHERE l.id = :id")
-    Optional<Lead> findByIdForUpdate(@Param("id") UUID id);
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("SELECT l FROM Lead l WHERE l.id = :id")
+  Optional<Lead> findByIdForUpdate(@Param("id") UUID id);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT l FROM Lead l WHERE l.email = :email")
-    Optional<Lead> findByEmailForUpdate(@Param("email") String email);
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("SELECT l FROM Lead l WHERE l.email = :email")
+  Optional<Lead> findByEmailForUpdate(@Param("email") String email);
 }
