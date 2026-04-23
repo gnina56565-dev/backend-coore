@@ -27,154 +27,152 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 class LeadLockingServiceTest {
 
-    @Autowired
-    private LeadLockingService leadLockingService;
+	@Autowired
+	private LeadLockingService leadLockingService;
 
-    @Autowired
-    private LeadJpaRepository leadRepository;
+	@Autowired
+	private LeadJpaRepository leadRepository;
 
-    @Autowired
-    private CompanyRepository companyRepository;
+	@Autowired
+	private CompanyRepository companyRepository;
 
-    @Test
-    void shouldPreventLostUpdate_whenPessimisticLockUsed() throws Exception {
-        Company company = new Company("TestComp", "General");
-        company = companyRepository.save(company);
+	@Test
+	void shouldPreventLostUpdate_whenPessimisticLockUsed() throws Exception {
+		Company company = new Company("TestComp", "General");
+		company = companyRepository.save(company);
 
-        Lead lead = new Lead("concurrent@test.com", company, LeadStatus.NEW);
-        lead = leadRepository.save(lead);
-        UUID leadId = lead.getId();
+		Lead lead = new Lead("concurrent@test.com", company, LeadStatus.NEW);
+		lead = leadRepository.save(lead);
+		UUID leadId = lead.getId();
 
-        ExecutorService executor = Executors.newFixedThreadPool(2);
+		ExecutorService executor = Executors.newFixedThreadPool(2);
 
-        CountDownLatch startLatch = new CountDownLatch(1);
-        CountDownLatch doneLatch = new CountDownLatch(2);
+		CountDownLatch startLatch = new CountDownLatch(1);
+		CountDownLatch doneLatch = new CountDownLatch(2);
 
-        Future<LeadStatus> task1 = executor.submit(() -> {
-            startLatch.await();
-            Lead updated = leadLockingService.convertLeadToDealWithLock(leadId, LeadStatus.CONTACTED);
-            doneLatch.countDown();
-            return updated.getStatus();
-        });
+		Future<LeadStatus> task1 = executor.submit(() -> {
+			startLatch.await();
+			Lead updated = leadLockingService.convertLeadToDealWithLock(leadId, LeadStatus.CONTACTED);
+			doneLatch.countDown();
+			return updated.getStatus();
+		});
 
-        Future<LeadStatus> task2 = executor.submit(() -> {
-            startLatch.await();
-            Lead updated = leadLockingService.convertLeadToDealWithLock(leadId, LeadStatus.QUALIFIED);
-            doneLatch.countDown();
-            return updated.getStatus();
-        });
+		Future<LeadStatus> task2 = executor.submit(() -> {
+			startLatch.await();
+			Lead updated = leadLockingService.convertLeadToDealWithLock(leadId, LeadStatus.QUALIFIED);
+			doneLatch.countDown();
+			return updated.getStatus();
+		});
 
-        startLatch.countDown();
-        doneLatch.await(10, TimeUnit.SECONDS);
+		startLatch.countDown();
+		doneLatch.await(10, TimeUnit.SECONDS);
 
-        LeadStatus status1 = task1.get();
-        LeadStatus status2 = task2.get();
+		LeadStatus status1 = task1.get();
+		LeadStatus status2 = task2.get();
 
-        assertThat(status1).isIn(LeadStatus.CONTACTED, LeadStatus.QUALIFIED);
-        assertThat(status2).isIn(LeadStatus.CONTACTED, LeadStatus.QUALIFIED);
-        assertThat(status1).isNotEqualTo(status2);
+		assertThat(status1).isIn(LeadStatus.CONTACTED, LeadStatus.QUALIFIED);
+		assertThat(status2).isIn(LeadStatus.CONTACTED, LeadStatus.QUALIFIED);
+		assertThat(status1).isNotEqualTo(status2);
 
-        Lead finalLead = leadRepository.findById(leadId).orElseThrow();
-        assertThat(finalLead.getStatus()).isIn(LeadStatus.CONTACTED, LeadStatus.QUALIFIED);
+		Lead finalLead = leadRepository.findById(leadId).orElseThrow();
+		assertThat(finalLead.getStatus()).isIn(LeadStatus.CONTACTED, LeadStatus.QUALIFIED);
 
-        executor.shutdown();
-    }
+		executor.shutdown();
+	}
 
-    @Test
-    void shouldThrowOptimisticLockException_whenConcurrentUpdateWithoutLock() throws Exception {
-        Company company = new Company("TestComp", "General");
-        company = companyRepository.save(company);
+	@Test
+	void shouldThrowOptimisticLockException_whenConcurrentUpdateWithoutLock() throws Exception {
+		Company company = new Company("TestComp", "General");
+		company = companyRepository.save(company);
 
-        Lead lead = new Lead("optimistic@test.com", company, LeadStatus.NEW);
-        lead = leadRepository.save(lead);
-        UUID leadId = lead.getId();
+		Lead lead = new Lead("optimistic@test.com", company, LeadStatus.NEW);
+		lead = leadRepository.save(lead);
+		UUID leadId = lead.getId();
 
-        ExecutorService executor = Executors.newFixedThreadPool(2);
-        AtomicReference<Throwable> exceptionHolder = new AtomicReference<>();
+		ExecutorService executor = Executors.newFixedThreadPool(2);
+		AtomicReference<Throwable> exceptionHolder = new AtomicReference<>();
 
-        Future<?> task1 = executor.submit(() -> {
-            try {
-                leadLockingService.updateLeadStatusOptimistic(leadId, LeadStatus.CONTACTED);
-            } catch (Exception e) {
-                exceptionHolder.compareAndSet(null, e);
-            }
-        });
+		Future<?> task1 = executor.submit(() -> {
+			try {
+				leadLockingService.updateLeadStatusOptimistic(leadId, LeadStatus.CONTACTED);
+			} catch (Exception e) {
+				exceptionHolder.compareAndSet(null, e);
+			}
+		});
 
-        Future<?> task2 = executor.submit(() -> {
-            try {
-                Thread.sleep(50);
+		Future<?> task2 = executor.submit(() -> {
+			try {
+				Thread.sleep(50);
 
-                leadLockingService.updateLeadStatusOptimistic(leadId, LeadStatus.QUALIFIED);
-            } catch (Exception e) {
-                exceptionHolder.compareAndSet(null, e);
-            }
-        });
+				leadLockingService.updateLeadStatusOptimistic(leadId, LeadStatus.QUALIFIED);
+			} catch (Exception e) {
+				exceptionHolder.compareAndSet(null, e);
+			}
+		});
 
-        task1.get(10, TimeUnit.SECONDS);
-        task2.get(10, TimeUnit.SECONDS);
+		task1.get(10, TimeUnit.SECONDS);
+		task2.get(10, TimeUnit.SECONDS);
 
-        Throwable thrown = exceptionHolder.get();
+		Throwable thrown = exceptionHolder.get();
 
-        if (thrown == null) {
-            Lead finalLead = leadRepository.findById(leadId).orElseThrow();
-            assertThat(finalLead.getStatus()).isEqualTo(LeadStatus.QUALIFIED);
-            assertThat(finalLead.getVersion()).isEqualTo(2L);
-        } else {
-            assertThat(thrown).isInstanceOfAny(
-                    ObjectOptimisticLockingFailureException.class,
-                    org.springframework.dao.OptimisticLockingFailureException.class
-            );
-        }
+		if (thrown == null) {
+			Lead finalLead = leadRepository.findById(leadId).orElseThrow();
+			assertThat(finalLead.getStatus()).isEqualTo(LeadStatus.QUALIFIED);
+			assertThat(finalLead.getVersion()).isEqualTo(2L);
+		} else {
+			assertThat(thrown).isInstanceOfAny(ObjectOptimisticLockingFailureException.class,
+					org.springframework.dao.OptimisticLockingFailureException.class);
+		}
 
-        executor.shutdown();
-    }
+		executor.shutdown();
+	}
 
-    @Test
-    void shouldDeadLock() throws Exception {
-        Company companyA = new Company("CompanyA", "General");
-        companyA = companyRepository.save(companyA);
+	@Test
+	void shouldDeadLock() throws Exception {
+		Company companyA = new Company("CompanyA", "General");
+		companyA = companyRepository.save(companyA);
 
-        Company companyB = new Company("CompanyB", "General");
-        companyB = companyRepository.save(companyB);
+		Company companyB = new Company("CompanyB", "General");
+		companyB = companyRepository.save(companyB);
 
-        Lead leadA = leadRepository.save(new Lead("a@test.com", companyA, LeadStatus.NEW));
-        Lead leadB = leadRepository.save(new Lead("b@test.com", companyB, LeadStatus.NEW));
+		Lead leadA = leadRepository.save(new Lead("a@test.com", companyA, LeadStatus.NEW));
+		Lead leadB = leadRepository.save(new Lead("b@test.com", companyB, LeadStatus.NEW));
 
-        List<UUID> order1 = List.of(leadA.getId(), leadB.getId());
-        List<UUID> order2 = List.of(leadB.getId(), leadA.getId());
+		List<UUID> order1 = List.of(leadA.getId(), leadB.getId());
+		List<UUID> order2 = List.of(leadB.getId(), leadA.getId());
 
-        ExecutorService executor = Executors.newFixedThreadPool(2);
-        CountDownLatch startLatch = new CountDownLatch(1);
+		ExecutorService executor = Executors.newFixedThreadPool(2);
+		CountDownLatch startLatch = new CountDownLatch(1);
 
-        Future<?> task1 = executor.submit(() -> {
-            try {
-                startLatch.await();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            leadLockingService.processLeadsInOrder(order1);
-        });
-        Future<?> task2 = executor.submit(() -> {
-            try {
-                startLatch.await();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            leadLockingService.processLeadsInOrder(order2);
-        });
+		Future<?> task1 = executor.submit(() -> {
+			try {
+				startLatch.await();
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+			leadLockingService.processLeadsInOrder(order1);
+		});
+		Future<?> task2 = executor.submit(() -> {
+			try {
+				startLatch.await();
+			} catch (InterruptedException e) {
+				throw new RuntimeException(e);
+			}
+			leadLockingService.processLeadsInOrder(order2);
+		});
 
-        startLatch.countDown();
-        boolean deadlockDetected = false;
-        try {
-            task1.get(10, TimeUnit.SECONDS);
-            task2.get(10, TimeUnit.SECONDS);
-        } catch (ExecutionException e) {
-            if (e.getCause() instanceof org.springframework.dao.CannotAcquireLockException) {
-                deadlockDetected = true;
-            }
-        }
+		startLatch.countDown();
+		boolean deadlockDetected = false;
+		try {
+			task1.get(10, TimeUnit.SECONDS);
+			task2.get(10, TimeUnit.SECONDS);
+		} catch (ExecutionException e) {
+			if (e.getCause() instanceof org.springframework.dao.CannotAcquireLockException) {
+				deadlockDetected = true;
+			}
+		}
 
-        assertThat(deadlockDetected).isTrue();
-        executor.shutdown();
-    }
+		assertThat(deadlockDetected).isTrue();
+		executor.shutdown();
+	}
 }

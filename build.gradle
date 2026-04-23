@@ -10,9 +10,11 @@ plugins {
 }
 spotless {
     java {
-        target 'src/${*}.java'
-        targetExclude 'build/**'
-        googleJavaFormat('1.22.0')
+        target 'src/**/*.java'
+        targetExclude 'build/**', 'src/main/generated/**', 'src/test/generated/**'
+
+        eclipse()
+
         removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()

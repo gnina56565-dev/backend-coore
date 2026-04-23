@@ -8,13 +8,13 @@ import ru.mentee.power.crm.model.Company;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Override
-    public void addFormatters(FormatterRegistry registry) {
-        registry.addConverter(String.class, Company.class, source -> {
-            if (source == null || source.trim().isEmpty()) {
-                return null;
-            }
-            return new Company(source.trim(), null);
-        });
-    }
+	@Override
+	public void addFormatters(FormatterRegistry registry) {
+		registry.addConverter(String.class, Company.class, source -> {
+			if (source == null || source.trim().isEmpty()) {
+				return null;
+			}
+			return new Company(source.trim(), null);
+		});
+	}
 }

@@ -12,9 +12,9 @@ import java.util.UUID;
 @Repository
 public interface DealRepository extends JpaRepository<Deal, UUID> {
 
-    Deal save(Deal deal);
-    Optional<Deal> findById(UUID id);
-    List<Deal> findAll();
-    List<Deal> findByStatus(DealStatus status);
-    void deleteById(UUID id);
+	Deal save(Deal deal);
+	Optional<Deal> findById(UUID id);
+	List<Deal> findAll();
+	List<Deal> findByStatus(DealStatus status);
+	void deleteById(UUID id);
 }

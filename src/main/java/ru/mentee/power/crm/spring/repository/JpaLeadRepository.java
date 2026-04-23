@@ -11,34 +11,34 @@ import java.util.UUID;
 @Repository
 public class JpaLeadRepository implements LeadRepository {
 
-    private final LeadJpaRepository leadJpaRepository;
+	private final LeadJpaRepository leadJpaRepository;
 
-    public JpaLeadRepository(LeadJpaRepository leadJpaRepository) {
-        this.leadJpaRepository = leadJpaRepository;
-    }
+	public JpaLeadRepository(LeadJpaRepository leadJpaRepository) {
+		this.leadJpaRepository = leadJpaRepository;
+	}
 
-    @Override
-    public Lead save(Lead lead) {
-        return leadJpaRepository.save(lead);
-    }
+	@Override
+	public Lead save(Lead lead) {
+		return leadJpaRepository.save(lead);
+	}
 
-    @Override
-    public Optional<Lead> findById(UUID id) {
-        return leadJpaRepository.findById(id);
-    }
+	@Override
+	public Optional<Lead> findById(UUID id) {
+		return leadJpaRepository.findById(id);
+	}
 
-    @Override
-    public Optional<Lead> findByEmail(String email) {
-        return leadJpaRepository.findByEmail(email);
-    }
+	@Override
+	public Optional<Lead> findByEmail(String email) {
+		return leadJpaRepository.findByEmail(email);
+	}
 
-    @Override
-    public List<Lead> findAll() {
-        return leadJpaRepository.findAll();
-    }
+	@Override
+	public List<Lead> findAll() {
+		return leadJpaRepository.findAll();
+	}
 
-    @Override
-    public void delete(UUID id) {
-        leadJpaRepository.deleteById(id);
-    }
+	@Override
+	public void delete(UUID id) {
+		leadJpaRepository.deleteById(id);
+	}
 }

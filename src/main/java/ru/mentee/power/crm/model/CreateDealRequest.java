@@ -13,11 +13,11 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateDealRequest {
-    @NotNull
-    private String title;
-    @Positive
-    @NotNull
-    private BigDecimal amount;
-    @NotNull
-    private UUID companyId;
+	@NotNull
+	private String title;
+	@Positive
+	@NotNull
+	private BigDecimal amount;
+	@NotNull
+	private UUID companyId;
 }
