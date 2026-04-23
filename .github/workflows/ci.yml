@@ -39,5 +39,5 @@ jobs:
       - name: Verify code coverage (80%)
         run: ./gradlew --no-daemon jacocoTestCoverageVerification
 
-      - name: Build project
-        run: ./gradlew --no-daemon build
+      - name: Build without tests
+        run: ./gradlew assemble --console=plain
