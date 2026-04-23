@@ -6,15 +6,13 @@ plugins {
     id 'org.springframework.boot' version '3.5.10'
     id 'io.spring.dependency-management' version '1.1.7'
     id 'gg.jte.gradle' version '3.1.16'
-    id 'com.diffplug.spotless' version '6.25.0'
+    id 'com.diffplug.spotless' version '7.0.2'
 }
 spotless {
     java {
         target 'src/**/*.java'
         targetExclude 'build/**', 'src/main/generated/**', 'src/test/generated/**'
-
-        eclipse()
-
+        eclipse('4.31').configFile('config/spotless/eclipse-java-formatter.xml')
         removeUnusedImports()
         trimTrailingWhitespace()
         endWithNewline()

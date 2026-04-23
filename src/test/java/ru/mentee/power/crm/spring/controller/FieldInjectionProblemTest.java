@@ -4,9 +4,9 @@ import org.junit.jupiter.api.Test;
 
 class FieldInjectionProblemTest {
 
-	@Test
-	void fieldInjectionCausesNullPointerWithoutSpring() {
-		DemoController controller = new DemoController(null);
-		controller.demo();
-	}
+  @Test
+  void fieldInjectionCausesNullPointerWithoutSpring() {
+    DemoController controller = new DemoController(null);
+    controller.demo();
+  }
 }

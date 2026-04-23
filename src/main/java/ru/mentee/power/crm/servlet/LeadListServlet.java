@@ -18,48 +18,45 @@ import java.util.List;
 import java.util.Map;
 
 public class LeadListServlet extends HttpServlet {
-	private TemplateEngine templateEngine;
+  private TemplateEngine templateEngine;
 
-	@Override
-	public void init() throws ServletException {
-		try {
-			Path templatePath = Path.of("src/main/resources/jte").toAbsolutePath();
-			DirectoryCodeResolver codeResolver = new DirectoryCodeResolver(templatePath);
-			this.templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
+  @Override
+  public void init() throws ServletException {
+    try {
+      Path templatePath = Path.of("src/main/resources/jte").toAbsolutePath();
+      DirectoryCodeResolver codeResolver = new DirectoryCodeResolver(templatePath);
+      this.templateEngine = TemplateEngine.create(codeResolver, ContentType.Html);
 
-		} catch (Exception e) {
-			throw new ServletException("Failed to initialize template engine", e);
-		}
-	}
+    } catch (Exception e) {
+      throw new ServletException("Failed to initialize template engine", e);
+    }
+  }
 
-	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+  @Override
+  protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-		try {
-			SimpleLeadService leadService = (SimpleLeadService) getServletContext().getAttribute("leadService");
-			List<Lead> leads = leadService.findAll();
+    try {
+      SimpleLeadService leadService = (SimpleLeadService) getServletContext().getAttribute("leadService");
+      List<Lead> leads = leadService.findAll();
 
-			Map<String, Object> model = new HashMap<>();
-			model.put("leads", leads);
+      Map<String, Object> model = new HashMap<>();
+      model.put("leads", leads);
 
-			response.setContentType("text/html; charset=UTF-8");
+      response.setContentType("text/html; charset=UTF-8");
 
-			StringOutput output = new StringOutput();
-			templateEngine.render("leads/list.jte", model, output);
-			String html = output.toString();
+      StringOutput output = new StringOutput();
+      templateEngine.render("leads/list.jte", model, output);
+      String html = output.toString();
 
-			if (html.trim().startsWith("@") || html.contains("TemplateNotFoundException")) {
-				response.sendError(500,
-						"JTE template rendering failed: " + html.substring(0, Math.min(200, html.length())));
-				return;
-			}
+      if (html.trim().startsWith("@") || html.contains("TemplateNotFoundException")) {
+        response.sendError(500, "JTE template rendering failed: " + html.substring(0, Math.min(200, html.length())));
+        return;
+      }
 
-			response.getWriter().write(html);
-		} catch (Exception e) {
-			e.printStackTrace();
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-					"Error rendering template: " + e.getMessage());
-		}
-	}
+      response.getWriter().write(html);
+    } catch (Exception e) {
+      e.printStackTrace();
+      response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error rendering template: " + e.getMessage());
+    }
+  }
 }

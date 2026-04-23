@@ -25,18 +25,18 @@ import java.util.UUID;
 @Entity
 @Table(name = "deal_product")
 public class DealProduct {
-	@Id
-	@GeneratedValue(strategy = GenerationType.UUID)
-	private UUID id;
-	@JoinColumn(name = "deal_id")
-	@ManyToOne
-	private Deal deal;
-	@ManyToOne
-	@JoinColumn(name = "product_id")
-	private Product product;
-	@Column(nullable = false)
-	private Integer quantity;
-	@Column(name = "unit_price", precision = 15, scale = 2)
-	private BigDecimal unitPrice;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  private UUID id;
+  @JoinColumn(name = "deal_id")
+  @ManyToOne
+  private Deal deal;
+  @ManyToOne
+  @JoinColumn(name = "product_id")
+  private Product product;
+  @Column(nullable = false)
+  private Integer quantity;
+  @Column(name = "unit_price", precision = 15, scale = 2)
+  private BigDecimal unitPrice;
 
 }

@@ -9,27 +9,27 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class LeadControllerUnitTest {
 
-	@Test
-	void shouldCreateControllerWithoutSpring() {
-		MockLeadService mockService = new MockLeadService();
-		CompanyRepository mockRepository = Mockito.mock(CompanyRepository.class);
-		LeadController controller = new LeadController(mockService, mockRepository);
+  @Test
+  void shouldCreateControllerWithoutSpring() {
+    MockLeadService mockService = new MockLeadService();
+    CompanyRepository mockRepository = Mockito.mock(CompanyRepository.class);
+    LeadController controller = new LeadController(mockService, mockRepository);
 
-		String response = controller.home();
+    String response = controller.home();
 
-		assertThat(response).contains("2 leads");
-	}
+    assertThat(response).contains("2 leads");
+  }
 
-	@Test
-	void shouldUseInjectedService() {
-		MockLeadService mockService = new MockLeadService();
-		CompanyRepository mockRepository = Mockito.mock(CompanyRepository.class);
+  @Test
+  void shouldUseInjectedService() {
+    MockLeadService mockService = new MockLeadService();
+    CompanyRepository mockRepository = Mockito.mock(CompanyRepository.class);
 
-		LeadController controller = new LeadController(mockService, mockRepository);
+    LeadController controller = new LeadController(mockService, mockRepository);
 
-		String response = controller.home();
+    String response = controller.home();
 
-		assertThat(response).isNotNull();
-		assertThat(response).contains("Spring Boot CRM is running");
-	}
+    assertThat(response).isNotNull();
+    assertThat(response).contains("Spring Boot CRM is running");
+  }
 }

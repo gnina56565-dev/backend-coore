@@ -14,22 +14,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ActiveProfiles("test")
 class DatabaseConfigTest {
 
-	@Autowired
-	private JdbcTemplate jdbcTemplate;
+  @Autowired
+  private JdbcTemplate jdbcTemplate;
 
-	@Test
-	void shouldConnectToH2Database() {
-		String databaseProductName = jdbcTemplate
-				.execute((ConnectionCallback<String>) connection -> connection.getMetaData().getDatabaseProductName());
+  @Test
+  void shouldConnectToH2Database() {
+    String databaseProductName = jdbcTemplate
+        .execute((ConnectionCallback<String>) connection -> connection.getMetaData().getDatabaseProductName());
 
-		assertThat(databaseProductName).isEqualTo("H2");
-	}
+    assertThat(databaseProductName).isEqualTo("H2");
+  }
 
-	@Test
-	void shouldHaveLeadsTableCreated() {
-		Integer count = jdbcTemplate.queryForObject(
-				"SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'LEADS'", Integer.class);
+  @Test
+  void shouldHaveLeadsTableCreated() {
+    Integer count = jdbcTemplate
+        .queryForObject("SELECT COUNT(*) FROM information_schema.tables WHERE table_name = 'LEADS'", Integer.class);
 
-		assertThat(count).isEqualTo(1);
-	}
+    assertThat(count).isEqualTo(1);
+  }
 }
