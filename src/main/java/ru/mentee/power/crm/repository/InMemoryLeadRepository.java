@@ -4,6 +4,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.repository.query.FluentQuery;
 import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Lead;
@@ -291,4 +292,49 @@ public class InMemoryLeadRepository implements LeadJpaRepository {
   public List<Lead> findAll(Sort sort) {
     return List.of();
   }
+
+    @Override
+    public Optional<Lead> findOne(Specification<Lead> spec) {
+        return Optional.empty();
+    }
+
+    @Override
+    public List<Lead> findAll(Specification<Lead> spec) {
+        return List.of();
+    }
+
+    @Override
+    public Page<Lead> findAll(Specification<Lead> spec, Pageable pageable) {
+        return null;
+    }
+
+    @Override
+    public Page<Lead> findAll(Specification<Lead> spec, Specification<Lead> countSpec, Pageable pageable) {
+        return null;
+    }
+
+    @Override
+    public List<Lead> findAll(Specification<Lead> spec, Sort sort) {
+        return List.of();
+    }
+
+    @Override
+    public long count(Specification<Lead> spec) {
+        return 0;
+    }
+
+    @Override
+    public boolean exists(Specification<Lead> spec) {
+        return false;
+    }
+
+    @Override
+    public long delete(Specification<Lead> spec) {
+        return 0;
+    }
+
+    @Override
+    public <S extends Lead, R> R findBy(Specification<Lead> spec, Function<? super SpecificationFluentQuery<S>, R> queryFunction) {
+        return null;
+    }
 }
