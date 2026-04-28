@@ -21,45 +21,43 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 class LeadServiceSpecificationTest {
 
-    @Autowired
-    private LeadService leadService;
+  @Autowired
+  private LeadService leadService;
 
-    @Autowired
-    private LeadJpaRepository leadRepository;
+  @Autowired
+  private LeadJpaRepository leadRepository;
 
-    @Autowired
-    private CompanyRepository companyRepository;
+  @Autowired
+  private CompanyRepository companyRepository;
 
-    private Company testCompany;
+  private Company testCompany;
 
-    @BeforeEach
-    void setUp() {
-        testCompany = companyRepository.save(new Company("Test Corp", "IT"));
+  @BeforeEach
+  void setUp() {
+    testCompany = companyRepository.save(new Company("Test Corp", "IT"));
 
-        leadRepository.save(new Lead("user1@test.com", testCompany, LeadStatus.NEW));
-        leadRepository.save(new Lead("user2@test.com", testCompany, LeadStatus.CONTACTED));
-        leadRepository.save(new Lead("admin@test.com", testCompany, LeadStatus.NEW));
-    }
+    leadRepository.save(new Lead("user1@test.com", testCompany, LeadStatus.NEW));
+    leadRepository.save(new Lead("user2@test.com", testCompany, LeadStatus.CONTACTED));
+    leadRepository.save(new Lead("admin@test.com", testCompany, LeadStatus.NEW));
+  }
 
-    @Test
-    void findLeadsBySpec_ShouldFilterCorrectly() {
-        List<Lead> result = leadService.findLeadsBySpec("user", "NEW");
-        assertThat(result).extracting("email").contains("user1@test.com");
-        assertThat(result).extracting("email").doesNotContain("user2@test.com", "admin@test.com");
-    }
+  @Test
+  void findLeadsBySpec_ShouldFilterCorrectly() {
+    List<Lead> result = leadService.findLeadsBySpec("user", "NEW");
+    assertThat(result).extracting("email").contains("user1@test.com");
+    assertThat(result).extracting("email").doesNotContain("user2@test.com", "admin@test.com");
+  }
 
-    @Test
-    void findLeadsBySpec_ShouldReturnAllIfFiltersEmpty() {
-        List<Lead> result = leadService.findLeadsBySpec(null, null);
-        assertThat(result).extracting("email").containsAll(
-                List.of("user1@test.com", "user2@test.com", "admin@test.com")
-        );
-        assertThat(result).hasSizeGreaterThanOrEqualTo(3);
-    }
+  @Test
+  void findLeadsBySpec_ShouldReturnAllIfFiltersEmpty() {
+    List<Lead> result = leadService.findLeadsBySpec(null, null);
+    assertThat(result).extracting("email").containsAll(List.of("user1@test.com", "user2@test.com", "admin@test.com"));
+    assertThat(result).hasSizeGreaterThanOrEqualTo(3);
+  }
 
-    @Test
-    void findLeadsBySpec_ShouldHandleInvalidStatusGracefully() {
-        List<Lead> result = leadService.findLeadsBySpec("admin", "INVALID_STATUS");
-        assertThat(result).extracting("email").contains("admin@test.com");
-    }
+  @Test
+  void findLeadsBySpec_ShouldHandleInvalidStatusGracefully() {
+    List<Lead> result = leadService.findLeadsBySpec("admin", "INVALID_STATUS");
+    assertThat(result).extracting("email").contains("admin@test.com");
+  }
 }
