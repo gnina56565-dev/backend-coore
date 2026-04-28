@@ -1,5 +1,6 @@
 package ru.mentee.power.crm.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -34,6 +35,7 @@ public class Company {
 
   String industry;
 
+  @JsonIgnore
   @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Lead> leads = new ArrayList<>();
 

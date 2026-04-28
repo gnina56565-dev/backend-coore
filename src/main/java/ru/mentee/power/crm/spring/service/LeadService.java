@@ -18,6 +18,7 @@ import ru.mentee.power.crm.model.CreateDealRequest;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadJpaRepository;
+import ru.mentee.power.crm.specification.LeadSpecifications;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.repository.DealRepository;
 
@@ -172,5 +173,45 @@ public class LeadService {
     lead.setStatus(LeadStatus.CONTACTED);
     leadJpaRepository.save(lead);
   }
+  public List<Lead> findLeadsBySpec(String search, String statusName) {
+    LeadStatus status = null;
+    try {
+      if (statusName != null && !statusName.isBlank()) {
+        status = LeadStatus.valueOf(statusName.toUpperCase());
+      }
+    } catch (IllegalArgumentException e) {
+      log.warn("Invalid status name: {}", statusName);
+    }
 
+    var spec = LeadSpecifications.buildFilter(search, status);
+    return leadJpaRepository.findAll(spec);
+  }
+
+  @Transactional
+  public Lead createLead(Lead lead) {
+    if (lead.getStatus() == null) {
+      lead.setStatus(LeadStatus.NEW);
+    }
+    if (lead.getCompany() == null && lead.getCompanyName() != null) {
+      String companyName = lead.getCompanyName().trim();
+      Company company = companyRepository.findByName(companyName).orElseGet(() -> {
+        Company newCompany = new Company(companyName, null);
+        return companyRepository.save(newCompany);
+      });
+      lead.setCompany(company);
+    } else if (lead.getCompany() != null && lead.getCompany().getId() == null) {
+      String companyName = lead.getCompany().getName();
+      if (companyName != null && !companyName.isBlank()) {
+        Company company = companyRepository.findByName(companyName)
+            .orElseGet(() -> companyRepository.save(lead.getCompany()));
+        lead.setCompany(company);
+      } else {
+        throw new IllegalArgumentException("Company name is required when creating a new company");
+      }
+    }
+    if (lead.getCompany() == null) {
+      throw new IllegalArgumentException("Company must be set for the lead. Provide 'companyName' in request.");
+    }
+    return leadJpaRepository.save(lead);
+  }
 }
