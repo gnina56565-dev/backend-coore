@@ -18,70 +18,62 @@ import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 @SpringBootTest
 class EmailValidationClientWireMockTest {
 
-    @Autowired
-    private EmailValidationClient emailValidationClient;
+  @Autowired
+  private EmailValidationClient emailValidationClient;
 
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("email.validation.base-url", () -> "http://localhost:8089");
-    }
+  @DynamicPropertySource
+  static void configureProperties(DynamicPropertyRegistry registry) {
+    registry.add("email.validation.base-url", () -> "http://localhost:8089");
+  }
 
-    @Test
-    void shouldReturnValid_whenEmailIsCorrect() {
-        stubFor(get(urlPathEqualTo("/api/validate/email"))
-                .withQueryParam("email", equalTo("john@example.com"))
-                .willReturn(okJson("""
-                {
-                    "email": "john@example.com",
-                    "valid": true,
-                    "reason": "Email exists"
-                }
-                """)));
+  @Test
+  void shouldReturnValid_whenEmailIsCorrect() {
+    stubFor(get(urlPathEqualTo("/api/validate/email")).withQueryParam("email", equalTo("john@example.com"))
+        .willReturn(okJson("""
+            {
+                "email": "john@example.com",
+                "valid": true,
+                "reason": "Email exists"
+            }
+            """)));
 
-        EmailValidationResponse response = emailValidationClient.validateEmail("john@example.com");
+    EmailValidationResponse response = emailValidationClient.validateEmail("john@example.com");
 
-        assertThat(response).isNotNull();
-        assertThat(response.valid()).isTrue();
-        assertThat(response.email()).isEqualTo("john@example.com");
-    }
+    assertThat(response).isNotNull();
+    assertThat(response.valid()).isTrue();
+    assertThat(response.email()).isEqualTo("john@example.com");
+  }
 
-    @Test
-    void shouldReturnInvalid_whenEmailIsIncorrect() {
-        stubFor(get(urlPathEqualTo("/api/validate/email"))
-                .withQueryParam("email", equalTo("invalid-email"))
-                .willReturn(okJson("""
-                {
-                    "email": "invalid-email",
-                    "valid": false,
-                    "reason": "Invalid email format"
-                }
-                """)));
+  @Test
+  void shouldReturnInvalid_whenEmailIsIncorrect() {
+    stubFor(get(urlPathEqualTo("/api/validate/email")).withQueryParam("email", equalTo("invalid-email"))
+        .willReturn(okJson("""
+            {
+                "email": "invalid-email",
+                "valid": false,
+                "reason": "Invalid email format"
+            }
+            """)));
 
-        EmailValidationResponse response = emailValidationClient.validateEmail("invalid-email");
+    EmailValidationResponse response = emailValidationClient.validateEmail("invalid-email");
 
-        assertThat(response).isNotNull();
-        assertThat(response.valid()).isFalse();
-        assertThat(response.reason()).isEqualTo("Invalid email format");
-    }
+    assertThat(response).isNotNull();
+    assertThat(response.valid()).isFalse();
+    assertThat(response.reason()).isEqualTo("Invalid email format");
+  }
 
-    @Test
-    void shouldHandleServerError_whenExternalServiceFails() {
-        stubFor(get(urlPathEqualTo("/api/validate/email"))
-                .willReturn(serverError().withBody("Internal Server Error")));
-        assertThatThrownBy(() -> emailValidationClient.validateEmail("test@example.com"))
-                .isInstanceOf(RuntimeException.class);
-    }
+  @Test
+  void shouldHandleServerError_whenExternalServiceFails() {
+    stubFor(get(urlPathEqualTo("/api/validate/email")).willReturn(serverError().withBody("Internal Server Error")));
+    assertThatThrownBy(() -> emailValidationClient.validateEmail("test@example.com"))
+        .isInstanceOf(RuntimeException.class);
+  }
 
-    @Test
-    void shouldHandleTimeout_whenExternalServiceIsSlow() {
-        stubFor(get(urlPathEqualTo("/api/validate/email"))
-                .willReturn(okJson("{\"valid\": true}")
-                        .withFixedDelay(15000)));
+  @Test
+  void shouldHandleTimeout_whenExternalServiceIsSlow() {
+    stubFor(get(urlPathEqualTo("/api/validate/email")).willReturn(okJson("{\"valid\": true}").withFixedDelay(15000)));
 
-        assertThatThrownBy(() ->
-                assertTimeoutPreemptively(Duration.ofSeconds(20), () ->
-                        emailValidationClient.validateEmail("slow@example.com")
-                )
-        ).isInstanceOf(RuntimeException.class);
-    }
+    assertThatThrownBy(() -> assertTimeoutPreemptively(Duration.ofSeconds(20),
+        () -> emailValidationClient.validateEmail("slow@example.com"))).isInstanceOf(RuntimeException.class);
+  }
 }
