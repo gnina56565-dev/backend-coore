@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 class EmailValidationClientWireMockTest {
 
   @Autowired
-  private EmailValidationClient emailValidationClient;
+  private EmailValidationFeignClient emailValidationClient;
 
   @DynamicPropertySource
   static void configureProperties(DynamicPropertyRegistry registry) {
