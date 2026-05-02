@@ -12,7 +12,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.badRequest;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.okJson;
+import static com.github.tomakehurst.wiremock.client.WireMock.serverError;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -20,90 +26,87 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @SpringBootTest(classes = {EmailValidationFeignClientTest.Config.class})
 class EmailValidationFeignClientTest {
 
-    @Configuration
-    @EnableAutoConfiguration
-    @EnableFeignClients(clients = EmailValidationFeignClient.class)
-    static class Config {
+  @Configuration
+  @EnableAutoConfiguration
+  @EnableFeignClients(clients = EmailValidationFeignClient.class)
+  static class Config {
+  }
+
+  static WireMockServer wireMockServer = new WireMockServer(options().dynamicPort());
+
+  @Autowired
+  private EmailValidationFeignClient feignClient;
+
+  @BeforeAll
+  static void startWireMock() {
+    wireMockServer.start();
+    System.out.println("WireMock started on port: " + wireMockServer.port());
+  }
+
+  @AfterAll
+  static void stopWireMock() {
+    if (wireMockServer.isRunning()) {
+      wireMockServer.stop();
     }
+  }
 
-    static WireMockServer wireMockServer = new WireMockServer(options().dynamicPort());
+  @DynamicPropertySource
+  static void configureProperties(DynamicPropertyRegistry registry) {
+    registry.add("email.validation.base-url", wireMockServer::baseUrl);
+    registry.add("spring.cloud.compatibility-verifier.enabled", () -> "false");
+  }
 
-    @Autowired
-    private EmailValidationFeignClient feignClient;
+  @Test
+  void shouldReturnValidResponse_whenEmailIsValid() {
+    wireMockServer.stubFor(get(urlPathEqualTo("/api/validate/email"))
+        .withQueryParam("email", equalTo("john@example.com")).willReturn(okJson("""
+            {
+              "email": "john@example.com",
+              "valid": true,
+              "reason": "Email exists and is deliverable"
+            }
+            """)));
 
-    @BeforeAll
-    static void startWireMock() {
-        wireMockServer.start();
-        System.out.println("WireMock started on port: " + wireMockServer.port());
-    }
+    EmailValidationResponse response = feignClient.validateEmail("john@example.com");
 
-    @AfterAll
-    static void stopWireMock() {
-        if (wireMockServer.isRunning()) {
-            wireMockServer.stop();
-        }
-    }
+    assertThat(response.valid()).isTrue();
+    assertThat(response.email()).isEqualTo("john@example.com");
 
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("email.validation.base-url", wireMockServer::baseUrl);
-        registry.add("spring.cloud.compatibility-verifier.enabled", () -> "false");
-    }
+    wireMockServer.verify(
+        getRequestedFor(urlPathEqualTo("/api/validate/email")).withQueryParam("email", equalTo("john@example.com")));
+  }
 
-    @Test
-    void shouldReturnValidResponse_whenEmailIsValid() {
-        wireMockServer.stubFor(get(urlPathEqualTo("/api/validate/email"))
-                .withQueryParam("email", equalTo("john@example.com"))
-                .willReturn(okJson("""
-                        {
-                          "email": "john@example.com",
-                          "valid": true,
-                          "reason": "Email exists and is deliverable"
-                        }
-                        """)));
+  @Test
+  void shouldReturnInvalidResponse_whenEmailIsInvalid() {
+    wireMockServer.stubFor(get(urlPathEqualTo("/api/validate/email"))
+        .withQueryParam("email", equalTo("invalid@bad.email")).willReturn(okJson("""
+            {
+              "email": "invalid@bad.email",
+              "valid": false,
+              "reason": "Domain does not accept email"
+            }
+            """)));
 
-        EmailValidationResponse response = feignClient.validateEmail("john@example.com");
+    EmailValidationResponse response = feignClient.validateEmail("invalid@bad.email");
 
-        assertThat(response.valid()).isTrue();
-        assertThat(response.email()).isEqualTo("john@example.com");
+    assertThat(response.valid()).isFalse();
+    assertThat(response.email()).isEqualTo("invalid@bad.email");
+  }
 
-        wireMockServer.verify(getRequestedFor(urlPathEqualTo("/api/validate/email"))
-                .withQueryParam("email", equalTo("john@example.com")));
-    }
+  @Test
+  void shouldThrowFeignException_whenExternalServiceReturns500() {
+    wireMockServer.stubFor(
+        get(urlPathEqualTo("/api/validate/email")).willReturn(serverError().withBody("Internal Server Error")));
 
-    @Test
-    void shouldReturnInvalidResponse_whenEmailIsInvalid() {
-        wireMockServer.stubFor(get(urlPathEqualTo("/api/validate/email"))
-                .withQueryParam("email", equalTo("invalid@bad.email"))
-                .willReturn(okJson("""
-                        {
-                          "email": "invalid@bad.email",
-                          "valid": false,
-                          "reason": "Domain does not accept email"
-                        }
-                        """)));
+    assertThatThrownBy(() -> feignClient.validateEmail("any@email.com")).isInstanceOf(feign.FeignException.class);
+  }
 
-        EmailValidationResponse response = feignClient.validateEmail("invalid@bad.email");
+  @Test
+  void shouldThrowFeignException_whenExternalServiceReturns400() {
+    wireMockServer.stubFor(get(urlPathEqualTo("/api/validate/email"))
+        .willReturn(badRequest().withBody("{\"error\":\"Invalid email format\"}")));
 
-        assertThat(response.valid()).isFalse();
-        assertThat(response.email()).isEqualTo("invalid@bad.email");
-    }
-
-    @Test
-    void shouldThrowFeignException_whenExternalServiceReturns500() {
-        wireMockServer.stubFor(get(urlPathEqualTo("/api/validate/email"))
-                .willReturn(serverError().withBody("Internal Server Error")));
-
-        assertThatThrownBy(() -> feignClient.validateEmail("any@email.com"))
-                .isInstanceOf(feign.FeignException.class);
-    }
-
-    @Test
-    void shouldThrowFeignException_whenExternalServiceReturns400() {
-        wireMockServer.stubFor(get(urlPathEqualTo("/api/validate/email"))
-                .willReturn(badRequest().withBody("{\"error\":\"Invalid email format\"}")));
-
-        assertThatThrownBy(() -> feignClient.validateEmail("not-an-email"))
-                .isInstanceOf(feign.FeignException.BadRequest.class);
-    }
+    assertThatThrownBy(() -> feignClient.validateEmail("not-an-email"))
+        .isInstanceOf(feign.FeignException.BadRequest.class);
+  }
 }

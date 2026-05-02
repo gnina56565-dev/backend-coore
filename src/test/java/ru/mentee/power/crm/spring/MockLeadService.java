@@ -14,33 +14,26 @@ import ru.mentee.power.crm.spring.service.LeadService;
 import java.util.List;
 
 public class MockLeadService extends LeadService {
-    private final List<Lead> mockLeads;
+  private final List<Lead> mockLeads;
 
-    public MockLeadService() {
-        super(
-                Mockito.mock(LeadJpaRepository.class),
-                Mockito.mock(DealRepository.class),
-                Mockito.mock(LeadProcessor.class),
-                Mockito.mock(CompanyRepository.class),
-                Mockito.mock(EmailValidationFeignClient.class)
-        );
+  public MockLeadService() {
+    super(Mockito.mock(LeadJpaRepository.class), Mockito.mock(DealRepository.class), Mockito.mock(LeadProcessor.class),
+        Mockito.mock(CompanyRepository.class), Mockito.mock(EmailValidationFeignClient.class));
 
-        Company companyA = new Company("Company A", "General");
-        Company companyB = new Company("Company B", "General");
+    Company companyA = new Company("Company A", "General");
+    Company companyB = new Company("Company B", "General");
 
-        this.mockLeads = List.of(
-                createMockLead("test1@example.com", companyA, LeadStatus.NEW),
-                createMockLead("test2@example.com", companyB, LeadStatus.QUALIFIED)
-        );
-    }
+    this.mockLeads = List.of(createMockLead("test1@example.com", companyA, LeadStatus.NEW),
+        createMockLead("test2@example.com", companyB, LeadStatus.QUALIFIED));
+  }
 
-    private Lead createMockLead(String email, Company company, LeadStatus status) {
-        Lead lead = new Lead(email, company, status);
-        return lead;
-    }
+  private Lead createMockLead(String email, Company company, LeadStatus status) {
+    Lead lead = new Lead(email, company, status);
+    return lead;
+  }
 
-    @Override
-    public List<Lead> findAll() {
-        return mockLeads;
-    }
+  @Override
+  public List<Lead> findAll() {
+    return mockLeads;
+  }
 }
