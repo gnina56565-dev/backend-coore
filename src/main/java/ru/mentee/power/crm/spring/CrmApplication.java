@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication
 @EnableFeignClients
 public class CrmApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(CrmApplication.class, args);
-    }
+  public static void main(String[] args) {
+    SpringApplication.run(CrmApplication.class, args);
+  }
 }
