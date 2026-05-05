@@ -189,29 +189,46 @@ public class LeadService {
 
   @Transactional
   public Lead createLead(Lead lead) {
+    initializeLeadStatus(lead);
+    resolveAndAssignCompany(lead);
+    validateLeadCompanyPresence(lead);
+    return leadJpaRepository.save(lead);
+  }
+  private void initializeLeadStatus(Lead lead) {
     if (lead.getStatus() == null) {
       lead.setStatus(LeadStatus.NEW);
     }
-    if (lead.getCompany() == null && lead.getCompanyName() != null) {
-      String companyName = lead.getCompanyName().trim();
-      Company company = companyRepository.findByName(companyName).orElseGet(() -> {
-        Company newCompany = new Company(companyName, null);
-        return companyRepository.save(newCompany);
-      });
+  }
+  private void resolveAndAssignCompany(Lead lead) {
+    if (hasCompanyNameOnly(lead)) {
+      Company company = findOrCreateCompanyByName(lead.getCompanyName().trim());
       lead.setCompany(company);
-    } else if (lead.getCompany() != null && lead.getCompany().getId() == null) {
+      lead.setCompanyName(null);
+    } else if (hasNewCompanyObject(lead)) {
       String companyName = lead.getCompany().getName();
-      if (companyName != null && !companyName.isBlank()) {
-        Company company = companyRepository.findByName(companyName)
-            .orElseGet(() -> companyRepository.save(lead.getCompany()));
-        lead.setCompany(company);
-      } else {
+      if (companyName == null || companyName.isBlank()) {
         throw new IllegalArgumentException("Company name is required when creating a new company");
       }
+      Company company = findOrCreateCompanyByName(companyName);
+      lead.setCompany(company);
     }
+  }
+  private void validateLeadCompanyPresence(Lead lead) {
     if (lead.getCompany() == null) {
-      throw new IllegalArgumentException("Company must be set for the lead. Provide 'companyName' in request.");
+      throw new IllegalArgumentException("Company must be set for the lead. Provide 'companyName' or valid 'company'.");
     }
-    return leadJpaRepository.save(lead);
+  }
+  private boolean hasCompanyNameOnly(Lead lead) {
+    return lead.getCompany() == null && lead.getCompanyName() != null;
+  }
+  private boolean hasNewCompanyObject(Lead lead) {
+    return lead.getCompany() != null && lead.getCompany().getId() == null;
+  }
+
+  private Company findOrCreateCompanyByName(String name) {
+    return companyRepository.findByName(name).orElseGet(() -> {
+      Company newCompany = new Company(name, "General");
+      return companyRepository.save(newCompany);
+    });
   }
 }
