@@ -1,5 +1,6 @@
 package ru.mentee.power.crm.spring.service;
 
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,8 @@ import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadJpaRepository;
 import ru.mentee.power.crm.specification.LeadSpecifications;
+import ru.mentee.power.crm.spring.client.EmailValidationFeignClient;
+import ru.mentee.power.crm.spring.client.EmailValidationResponse;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.repository.DealRepository;
 
@@ -36,6 +39,79 @@ public class LeadService {
   private final DealRepository dealRepository;
   private final LeadProcessor leadProcessor;
   private final CompanyRepository companyRepository;
+  private final EmailValidationFeignClient emailValidationFeignClient;
+
+  public List<Lead> getAllLeads() {
+    return leadJpaRepository.findAll();
+  }
+
+  public Optional<Lead> getLeadById(UUID id) {
+    return leadJpaRepository.findById(id);
+  }
+
+  @Retry(name = "email-validation", fallbackMethod = "createLeadFallback")
+  @Transactional
+  public Lead createLead(Lead lead) {
+    EmailValidationResponse validation = emailValidationFeignClient.validateEmail(lead.getEmail());
+    if (!validation.valid()) {
+      throw new IllegalArgumentException("Invalid email: " + validation.reason());
+    }
+
+    return saveLeadWithCompany(lead);
+  }
+
+  public Lead createLeadFallback(Lead lead, Exception ex) {
+    log.warn("Email validation service unavailable after retries. Creating lead without validation. Error: {}",
+        ex.getMessage());
+    return saveLeadWithCompany(lead);
+  }
+  private Lead saveLeadWithCompany(Lead lead) {
+    if (lead.getStatus() == null) {
+      lead.setStatus(LeadStatus.NEW);
+    }
+
+    if (lead.getCompany() == null && lead.getCompanyName() != null) {
+      String companyName = lead.getCompanyName().trim();
+      Company company = companyRepository.findByName(companyName).orElseGet(() -> {
+        Company newCompany = new Company(companyName, null);
+        return companyRepository.save(newCompany);
+      });
+      lead.setCompany(company);
+    } else if (lead.getCompany() != null && lead.getCompany().getId() == null) {
+      String companyName = lead.getCompany().getName();
+      if (companyName != null && !companyName.isBlank()) {
+        Company company = companyRepository.findByName(companyName)
+            .orElseGet(() -> companyRepository.save(lead.getCompany()));
+        lead.setCompany(company);
+      } else {
+        throw new IllegalArgumentException("Company name is required when creating a new company");
+      }
+    }
+
+    if (lead.getCompany() == null) {
+      throw new IllegalArgumentException("Company must be set for the lead. Provide 'companyName' in request.");
+    }
+
+    return leadJpaRepository.save(lead);
+  }
+
+  public Optional<Lead> updateLead(UUID id, Lead updatedLead) {
+    return leadJpaRepository.findById(id).map(existingLead -> {
+      existingLead.setEmail(updatedLead.getEmail());
+      existingLead.setCompany(updatedLead.getCompany());
+      existingLead.setStatus(updatedLead.getStatus());
+      existingLead.setCreatedAt(java.time.LocalDateTime.now());
+      return leadJpaRepository.save(existingLead);
+    });
+  }
+
+  public boolean deleteLead(UUID id) {
+    if (leadJpaRepository.existsById(id)) {
+      leadJpaRepository.deleteById(id);
+      return true;
+    }
+    return false;
+  }
 
   @Transactional
   public void addLead(String email, String companyNameStr, LeadStatus status) {
@@ -185,50 +261,5 @@ public class LeadService {
 
     var spec = LeadSpecifications.buildFilter(search, status);
     return leadJpaRepository.findAll(spec);
-  }
-
-  @Transactional
-  public Lead createLead(Lead lead) {
-    initializeLeadStatus(lead);
-    resolveAndAssignCompany(lead);
-    validateLeadCompanyPresence(lead);
-    return leadJpaRepository.save(lead);
-  }
-  private void initializeLeadStatus(Lead lead) {
-    if (lead.getStatus() == null) {
-      lead.setStatus(LeadStatus.NEW);
-    }
-  }
-  private void resolveAndAssignCompany(Lead lead) {
-    if (hasCompanyNameOnly(lead)) {
-      Company company = findOrCreateCompanyByName(lead.getCompanyName().trim());
-      lead.setCompany(company);
-      lead.setCompanyName(null);
-    } else if (hasNewCompanyObject(lead)) {
-      String companyName = lead.getCompany().getName();
-      if (companyName == null || companyName.isBlank()) {
-        throw new IllegalArgumentException("Company name is required when creating a new company");
-      }
-      Company company = findOrCreateCompanyByName(companyName);
-      lead.setCompany(company);
-    }
-  }
-  private void validateLeadCompanyPresence(Lead lead) {
-    if (lead.getCompany() == null) {
-      throw new IllegalArgumentException("Company must be set for the lead. Provide 'companyName' or valid 'company'.");
-    }
-  }
-  private boolean hasCompanyNameOnly(Lead lead) {
-    return lead.getCompany() == null && lead.getCompanyName() != null;
-  }
-  private boolean hasNewCompanyObject(Lead lead) {
-    return lead.getCompany() != null && lead.getCompany().getId() == null;
-  }
-
-  private Company findOrCreateCompanyByName(String name) {
-    return companyRepository.findByName(name).orElseGet(() -> {
-      Company newCompany = new Company(name, "General");
-      return companyRepository.save(newCompany);
-    });
   }
 }

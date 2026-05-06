@@ -1,5 +1,6 @@
 package ru.mentee.power.crm.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -55,6 +56,7 @@ public class Lead {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "company_id", nullable = false)
+  @JsonIgnore
   private Company company;
 
   public Lead(String email, Company company, LeadStatus status) {

@@ -16,6 +16,7 @@ import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.repository.LeadJpaRepository;
+import ru.mentee.power.crm.spring.client.EmailValidationFeignClient;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.repository.DealRepository;
 import ru.mentee.power.crm.spring.service.LeadProcessor;
@@ -48,11 +49,15 @@ class LeadServiceUnitTest {
   @Mock
   private CompanyRepository companyRepository;
 
+  @Mock
+  private EmailValidationFeignClient emailValidationClient;
+
   private LeadService leadService;
 
   @BeforeEach
   void setUp() {
-    leadService = new LeadService(leadJpaRepository, dealRepository, leadProcessor, companyRepository);
+    leadService = new LeadService(leadJpaRepository, dealRepository, leadProcessor, companyRepository,
+        emailValidationClient);
   }
 
   @Test
