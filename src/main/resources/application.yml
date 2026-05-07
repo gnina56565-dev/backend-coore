@@ -8,6 +8,8 @@ gg:
 
 spring:
   cloud:
+    compatibility-verifier:
+      enabled: false
     openfeign:
       client:
         config:
@@ -18,13 +20,13 @@ spring:
           email-validation:
             connect-timeout: 3000
             read-timeout: 5000
-  jackson:
-    default-property-inclusion: non_null
-    serialization:
-      write-dates-as-timestamps: false
-      indent-output: true
-    deserialization:
-      fail-on-unknown-properties: false
+    jackson:
+      default-property-inclusion: non_null
+      serialization:
+        write-dates-as-timestamps: false
+        indent-output: true
+      deserialization:
+        fail-on-unknown-properties: false
   h2:
     console:
       enabled: true

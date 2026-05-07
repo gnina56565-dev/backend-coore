@@ -13,6 +13,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
+import ru.mentee.power.crm.spring.mapper.LeadMapper;
 import ru.mentee.power.crm.spring.service.LeadService;
 
 import java.util.List;
@@ -38,9 +39,12 @@ class LeadRestControllerTest {
   @Mock
   private LeadService leadService;
 
+  @Mock
+  private LeadMapper leadMapper;
+
   @BeforeEach
   void setUp() {
-    LeadRestController leadRestController = new LeadRestController(leadService);
+    LeadRestController leadRestController = new LeadRestController(leadService, leadMapper);
     mockMvc = MockMvcBuilders.standaloneSetup(leadRestController).build();
   }
 
