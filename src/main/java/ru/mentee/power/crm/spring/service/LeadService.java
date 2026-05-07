@@ -169,14 +169,16 @@ public class LeadService {
   }
 
   @Transactional
-  public void save(Lead lead) {
+  public Lead save(Lead lead) {
+    if (lead.getStatus() == null) {
+      lead.setStatus(LeadStatus.NEW);
+    }
     if (lead.getCompany() == null && lead.getCompanyName() != null) {
       String companyName = lead.getCompanyName().trim();
       Company company = companyRepository.findByName(companyName).orElseGet(() -> {
         Company newCompany = new Company(companyName, null);
         return companyRepository.save(newCompany);
       });
-
       lead.setCompany(company);
     } else if (lead.getCompany() != null && lead.getCompany().getId() == null) {
       String companyName = lead.getCompany().getName();
@@ -184,7 +186,7 @@ public class LeadService {
           .orElseGet(() -> companyRepository.save(lead.getCompany()));
       lead.setCompany(company);
     }
-    leadJpaRepository.save(lead);
+    return leadJpaRepository.save(lead);
   }
 
   public Optional<Lead> findByEmail(String email) {
