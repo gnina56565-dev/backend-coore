@@ -16,6 +16,7 @@ public interface LeadMapper {
   @Mapping(target = "status", ignore = true)
   @Mapping(target = "version", ignore = true)
   @Mapping(target = "company", ignore = true)
+  @Mapping(target = "companyName", source = "company")
   Lead toEntity(CreateLeadRequest dto);
 
   @Mapping(source = "company.name", target = "company")
