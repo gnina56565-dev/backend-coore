@@ -19,7 +19,7 @@ class LeadMapperTest {
 
   @Test
   void shouldMapCreateRequestToEntity_whenValidData() {
-    CreateLeadRequest request = new CreateLeadRequest("test@example.com", "Test Company");
+    CreateLeadRequest request = new CreateLeadRequest();
     Lead lead = leadMapper.toEntity(request);
 
     assertThat(lead).isNotNull();
