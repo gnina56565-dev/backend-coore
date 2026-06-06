@@ -8,7 +8,7 @@ import ru.mentee.power.crm.spring.dto.CreateLeadRequest;
 import ru.mentee.power.crm.spring.dto.LeadResponse;
 import ru.mentee.power.crm.spring.dto.UpdateLeadRequest;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface LeadMapper {
 
   @Mapping(target = "id", ignore = true)
