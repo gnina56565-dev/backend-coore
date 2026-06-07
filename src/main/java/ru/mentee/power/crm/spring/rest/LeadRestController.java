@@ -1,6 +1,5 @@
 package ru.mentee.power.crm.spring.rest;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
@@ -54,30 +53,19 @@ public class LeadRestController {
 
   @PutMapping("/{id}")
   public ResponseEntity<LeadResponse> updateLead(@PathVariable UUID id, @RequestBody UpdateLeadRequest request) {
-    Lead lead = leadService.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException("Lead not found with id: " + id));
-
-    leadMapper.updateEntity(request, lead);
-
-    Lead updatedLead = leadService.save(lead);
-
-    LeadResponse response = leadMapper.toResponse(updatedLead);
+    LeadResponse response = leadService.updateLead(id, request);
     return ResponseEntity.ok(response);
   }
 
   @DeleteMapping("/{id}")
   public ResponseEntity<Void> deleteLead(@PathVariable UUID id) {
-    boolean deleted = leadService.deleteLead(id);
-    if (!deleted) {
-      return ResponseEntity.notFound().build();
-    }
+    leadService.deleteLead(id);
     return ResponseEntity.noContent().build();
   }
+
   @GetMapping("/{id}")
   public ResponseEntity<LeadResponse> getLeadById(@PathVariable @NotNull(message = "ID лида обязателен") UUID id) {
-    Lead lead = leadService.getLeadById(id)
-        .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("Lead not found with id: " + id));
-    LeadResponse response = leadMapper.toResponse(lead);
+    LeadResponse response = leadService.getLeadById(id);
     return ResponseEntity.ok(response);
   }
 }
