@@ -3,6 +3,7 @@ package ru.mentee.power.crm.spring.service;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,6 +23,10 @@ import ru.mentee.power.crm.repository.LeadJpaRepository;
 import ru.mentee.power.crm.specification.LeadSpecifications;
 import ru.mentee.power.crm.spring.client.EmailValidationFeignClient;
 import ru.mentee.power.crm.spring.client.EmailValidationResponse;
+import ru.mentee.power.crm.spring.dto.LeadResponse;
+import ru.mentee.power.crm.spring.dto.UpdateLeadRequest;
+import ru.mentee.power.crm.spring.exception.EntityNotFoundException;
+import ru.mentee.power.crm.spring.mapper.LeadMapper;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.repository.DealRepository;
 
@@ -40,13 +45,17 @@ public class LeadService {
   private final LeadProcessor leadProcessor;
   private final CompanyRepository companyRepository;
   private final EmailValidationFeignClient emailValidationFeignClient;
+  @Autowired
+  private LeadMapper leadMapper;
 
   public List<Lead> getAllLeads() {
     return leadJpaRepository.findAll();
   }
 
-  public Optional<Lead> getLeadById(UUID id) {
-    return leadJpaRepository.findById(id);
+  public LeadResponse getLeadById(UUID id) {
+    Lead lead = leadJpaRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Lead", id.toString()));
+
+    return leadMapper.toResponse(lead);
   }
 
   @Retry(name = "email-validation", fallbackMethod = "createLeadFallback")
@@ -95,22 +104,18 @@ public class LeadService {
     return leadJpaRepository.save(lead);
   }
 
-  public Optional<Lead> updateLead(UUID id, Lead updatedLead) {
-    return leadJpaRepository.findById(id).map(existingLead -> {
-      existingLead.setEmail(updatedLead.getEmail());
-      existingLead.setCompany(updatedLead.getCompany());
-      existingLead.setStatus(updatedLead.getStatus());
-      existingLead.setCreatedAt(java.time.LocalDateTime.now());
-      return leadJpaRepository.save(existingLead);
-    });
+  public LeadResponse updateLead(UUID id, UpdateLeadRequest request) {
+    Lead lead = leadJpaRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Lead", id.toString()));
+    leadMapper.updateEntity(request, lead);
+    Lead savedLead = leadJpaRepository.save(lead);
+    return leadMapper.toResponse(savedLead);
   }
 
-  public boolean deleteLead(UUID id) {
-    if (leadJpaRepository.existsById(id)) {
-      leadJpaRepository.deleteById(id);
-      return true;
+  public void deleteLead(UUID id) {
+    if (!leadJpaRepository.existsById(id)) {
+      throw new EntityNotFoundException("Lead", id.toString());
     }
-    return false;
+    leadJpaRepository.deleteById(id);
   }
 
   @Transactional
