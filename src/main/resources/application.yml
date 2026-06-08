@@ -54,7 +54,6 @@ spring:
         format_sql: true
         use_sql_comments: true
 
-# Resilience4j Retry конфигурация
 resilience4j:
   retry:
     instances:
@@ -87,3 +86,11 @@ logging:
 email:
   validation:
     base-url: ${EMAIL_VALIDATION_URL:http://localhost:8089}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
