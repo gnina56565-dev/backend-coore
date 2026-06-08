@@ -10,7 +10,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.mentee.power.crm.model.Company;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
-import ru.mentee.power.crm.spring.dto.LeadResponse;
+import ru.mentee.power.crm.spring.dto.generated.LeadResponse;
 import ru.mentee.power.crm.spring.exception.EntityNotFoundException;
 import ru.mentee.power.crm.spring.mapper.LeadMapper;
 import ru.mentee.power.crm.spring.service.LeadService;
@@ -51,7 +51,7 @@ class LeadRestControllerTest {
     Lead lead = Lead.builder().id(id).email("john@example.com").company(company).status(LeadStatus.NEW).build();
 
     given(leadService.getAllLeads()).willReturn(List.of(lead));
-    given(leadMapper.toResponse(lead)).willReturn(new LeadResponse(id, "john@example.com", LeadStatus.NEW, null, null));
+    given(leadMapper.toResponse(lead)).willReturn(new LeadResponse(id, "john@example.com", "", "", null));
 
     mockMvc.perform(get("/api/leads").accept(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
         .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON)).andExpect(jsonPath("$").isArray())
@@ -77,8 +77,7 @@ class LeadRestControllerTest {
 
     given(leadMapper.toEntity(any())).willReturn(createdLead);
     given(leadService.save(any())).willReturn(createdLead);
-    given(leadMapper.toResponse(createdLead))
-        .willReturn(new LeadResponse(createdId, "new@example.com", LeadStatus.NEW, null, null));
+    given(leadMapper.toResponse(createdLead)).willReturn(new LeadResponse(createdId, "new@example.com", "", "", null));
 
     String requestJson = """
         {

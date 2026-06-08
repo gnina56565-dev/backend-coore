@@ -7,6 +7,7 @@ plugins {
     id 'io.spring.dependency-management' version '1.1.7'
     id 'gg.jte.gradle' version '3.1.16'
     id 'com.diffplug.spotless' version '7.0.2'
+    id 'org.openapi.generator' version '7.1.0'
 }
 spotless {
     java {
@@ -38,6 +39,8 @@ ext {
     liquibaseVersion = '4.25.0'
     mapstructVersion = '1.6.3'
     lombokMapstructBindingVersion = '0.2.0'
+    openApiGeneratorVersion = '7.1.0'
+    springdocVersion = '2.3.0'
 }
 
 dependencies {
@@ -85,7 +88,34 @@ dependencies {
 
     implementation "org.springframework.boot:spring-boot-starter-validation"
 
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
 }
+
+openApiGenerate {
+    generatorName = "spring"
+    inputSpec = "${rootProject.projectDir}".toString().replace('\\', '/') + "/src/main/resources/api/api-spec.yaml"
+    outputDir = "${buildDir}/generated".toString().replace('\\', '/')
+    apiPackage = "ru.mentee.power.crm.spring.rest.generated"
+    modelPackage = "ru.mentee.power.crm.spring.dto.generated"
+    configOptions = [
+            interfaceOnly: "true",
+            useTags: "true",
+            dateLibrary: "java8",
+            useSpringBoot3: "true",
+            documentationProvider: "none"
+    ]
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir "${buildDir}/generated/src/main/java"
+        }
+    }
+}
+compileJava.dependsOn tasks.openApiGenerate
+
 tasks.withType(JavaCompile) {
     options.compilerArgs += [
             '-Amapstruct.defaultComponentModel=spring',
@@ -93,6 +123,16 @@ tasks.withType(JavaCompile) {
     ]
 }
 
+tasks.withType(Checkstyle) {
+    excludes = [
+            'ru/mentee/power/crm/spring/dto/generated/**',
+            'ru/mentee/power/crm/spring/rest/generated/**'
+    ]
+
+    reports {
+        html.required = true
+    }
+}
 test {
     useJUnitPlatform()
 }
