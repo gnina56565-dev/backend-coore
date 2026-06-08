@@ -230,11 +230,6 @@ components:
           format: date-time
           description: Дата и время создания
           example: 2025-11-25T10:30:00Z
-        status:
-          type: string
-          enum: [ NEW, CONTACTED, QUALIFIED, LOST ]
-          description: Статус лида
-          example: NEW
 
     ProblemDetail:
       type: object
