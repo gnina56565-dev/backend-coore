@@ -11,24 +11,24 @@ import ru.mentee.power.crm.spring.dto.generated.UpdateLeadRequest;
 @Mapper(componentModel = "spring", uses = {DateTimeMapper.class})
 public interface LeadMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "status", ignore = true)
-    @Mapping(target = "version", ignore = true)
-    @Mapping(target = "company", ignore = true)
-    @Mapping(target = "companyName", source = "company")
-    Lead toEntity(CreateLeadRequest dto);
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "createdAt", ignore = true)
+  @Mapping(target = "status", ignore = true)
+  @Mapping(target = "version", ignore = true)
+  @Mapping(target = "company", ignore = true)
+  @Mapping(target = "companyName", source = "company")
+  Lead toEntity(CreateLeadRequest dto);
 
-    @Mapping(source = "company.name", target = "company")
-    @Mapping(target = "firstName", ignore = true)
-    @Mapping(target = "lastName", ignore = true)
-    LeadResponse toResponse(Lead entity);
+  @Mapping(source = "company.name", target = "company")
+  @Mapping(target = "firstName", constant = "")
+  @Mapping(target = "lastName", constant = "")
+  LeadResponse toResponse(Lead entity);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "status", ignore = true)
-    @Mapping(target = "version", ignore = true)
-    @Mapping(target = "company", ignore = true)
-    @Mapping(target = "companyName", ignore = true)
-    void updateEntity(UpdateLeadRequest dto, @MappingTarget Lead entity);
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "createdAt", ignore = true)
+  @Mapping(target = "status", ignore = true)
+  @Mapping(target = "version", ignore = true)
+  @Mapping(target = "company", ignore = true)
+  @Mapping(target = "companyName", ignore = true)
+  void updateEntity(UpdateLeadRequest dto, @MappingTarget Lead entity);
 }

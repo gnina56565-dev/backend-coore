@@ -18,55 +18,51 @@ import java.util.UUID;
 @RestController
 public class LeadRestController implements LeadManagementApi {
 
-    private final LeadService leadService;
-    private final LeadMapper leadMapper;
+  private final LeadService leadService;
+  private final LeadMapper leadMapper;
 
-    public LeadRestController(LeadService leadService, LeadMapper leadMapper) {
-        this.leadService = leadService;
-        this.leadMapper = leadMapper;
-    }
+  public LeadRestController(LeadService leadService, LeadMapper leadMapper) {
+    this.leadService = leadService;
+    this.leadMapper = leadMapper;
+  }
 
-    @Override
-    public ResponseEntity<List<LeadResponse>> getLeads() {
-        List<Lead> lead = leadService.findAll();
-        List<LeadResponse> responseList = lead.stream()
-                .map(leadMapper::toResponse).toList();
-        return ResponseEntity.ok(responseList);
-    }
+  @Override
+  public ResponseEntity<List<LeadResponse>> getLeads() {
+    List<Lead> lead = leadService.findAll();
+    List<LeadResponse> responseList = lead.stream().map(leadMapper::toResponse).toList();
+    return ResponseEntity.ok(responseList);
+  }
 
-    @Override
-    public ResponseEntity<LeadResponse> createLead(CreateLeadRequest createLeadRequest) {
-        Lead lead = leadMapper.toEntity(createLeadRequest);
-        Lead saved =leadService.save(lead);
-        LeadResponse response = leadMapper.toResponse(saved);
-        URI location = URI.create("/api/leads/" + saved.getId());
-        return ResponseEntity.created(location).body(response);
-    }
+  @Override
+  public ResponseEntity<LeadResponse> createLead(CreateLeadRequest createLeadRequest) {
+    Lead lead = leadMapper.toEntity(createLeadRequest);
+    Lead saved = leadService.save(lead);
+    LeadResponse response = leadMapper.toResponse(saved);
+    URI location = URI.create("/api/leads/" + saved.getId());
+    return ResponseEntity.created(location).body(response);
+  }
 
-    @Override
-    public ResponseEntity<LeadResponse> getLeadById(UUID id) {
-        Lead lead = leadService.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException());
-        LeadResponse response = leadMapper.toResponse(lead);
-        return ResponseEntity.ok(response);
-    }
+  @Override
+  public ResponseEntity<LeadResponse> getLeadById(UUID id) {
+    Lead lead = leadService.findById(id).orElseThrow(() -> new EntityNotFoundException());
+    LeadResponse response = leadMapper.toResponse(lead);
+    return ResponseEntity.ok(response);
+  }
 
-    @Override
-    public ResponseEntity<LeadResponse> updateLead(UUID id, UpdateLeadRequest updateLeadRequest) {
-        Lead existingLead = leadService.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException());
+  @Override
+  public ResponseEntity<LeadResponse> updateLead(UUID id, UpdateLeadRequest updateLeadRequest) {
+    Lead existingLead = leadService.findById(id).orElseThrow(() -> new EntityNotFoundException());
 
-        leadMapper.updateEntity(updateLeadRequest, existingLead);
-        Lead updatedLead = leadService.update(id, existingLead);
-        LeadResponse response = leadMapper.toResponse(updatedLead);
-        return ResponseEntity.ok(response);
-    }
+    leadMapper.updateEntity(updateLeadRequest, existingLead);
+    Lead updatedLead = leadService.update(id, existingLead);
+    LeadResponse response = leadMapper.toResponse(updatedLead);
+    return ResponseEntity.ok(response);
+  }
 
-    @Override
-    public ResponseEntity<Void> deleteLead(UUID id) {
-        leadService.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException());
-        leadService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
+  @Override
+  public ResponseEntity<Void> deleteLead(UUID id) {
+    leadService.findById(id).orElseThrow(() -> new EntityNotFoundException());
+    leadService.delete(id);
+    return ResponseEntity.noContent().build();
+  }
 }

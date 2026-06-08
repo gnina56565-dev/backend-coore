@@ -7,18 +7,18 @@ import java.time.OffsetDateTime;
 @Mapper(componentModel = "spring")
 public interface DateTimeMapper {
 
-    default OffsetDateTime map(LocalDateTime value) {
-        if (value == null) {
-            return null;
-        }
-
-        return value.atZone(ZoneOffset.systemDefault()).toOffsetDateTime();
+  default OffsetDateTime map(LocalDateTime value) {
+    if (value == null) {
+      return null;
     }
 
-    default LocalDateTime map(OffsetDateTime value) {
-        if (value == null) {
-            return null;
-        }
-        return value.toLocalDateTime();
+    return value.atZone(ZoneOffset.systemDefault()).toOffsetDateTime();
+  }
+
+  default LocalDateTime map(OffsetDateTime value) {
+    if (value == null) {
+      return null;
     }
+    return value.toLocalDateTime();
+  }
 }
