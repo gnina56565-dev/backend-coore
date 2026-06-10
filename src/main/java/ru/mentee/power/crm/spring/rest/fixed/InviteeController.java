@@ -25,41 +25,41 @@ import java.util.UUID;
 @RequestMapping("/api/invitees")
 public class InviteeController {
 
-    private final InviteeService inviteeService;
+  private final InviteeService inviteeService;
 
-    public InviteeController(InviteeService inviteeService) {
-        this.inviteeService = inviteeService;
-    }
+  public InviteeController(InviteeService inviteeService) {
+    this.inviteeService = inviteeService;
+  }
 
-    @GetMapping
-    public ResponseEntity<Page<InviteeResponse>> getAllInvitees(@PageableDefault(size = 20) Pageable pageable) {
-        Page<InviteeResponse> invitees = inviteeService.getAll(pageable);
-        return ResponseEntity.ok(invitees);
-    }
+  @GetMapping
+  public ResponseEntity<Page<InviteeResponse>> getAllInvitees(@PageableDefault(size = 20) Pageable pageable) {
+    Page<InviteeResponse> invitees = inviteeService.getAll(pageable);
+    return ResponseEntity.ok(invitees);
+  }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<InviteeResponse> getById(@PathVariable UUID id) {
-        InviteeResponse invitee = inviteeService.getById(id);
-        return ResponseEntity.ok(invitee);
-    }
+  @GetMapping("/{id}")
+  public ResponseEntity<InviteeResponse> getById(@PathVariable UUID id) {
+    InviteeResponse invitee = inviteeService.getById(id);
+    return ResponseEntity.ok(invitee);
+  }
 
-    @PostMapping
-    public ResponseEntity<InviteeResponse> create(@Valid @RequestBody CreateInviteeRequest request) {
-        InviteeResponse created = inviteeService.create(request);
-        URI location = URI.create("/api/invitees/" + created.id());
-        return ResponseEntity.created(location).body(created);
-    }
+  @PostMapping
+  public ResponseEntity<InviteeResponse> create(@Valid @RequestBody CreateInviteeRequest request) {
+    InviteeResponse created = inviteeService.create(request);
+    URI location = URI.create("/api/invitees/" + created.id());
+    return ResponseEntity.created(location).body(created);
+  }
 
-    @PutMapping("/{id}/status")
-    public ResponseEntity<InviteeResponse> updateStatus(@PathVariable UUID id,
-                                                        @Valid @RequestBody UpdateInviteeStatusRequest request) {
-        InviteeResponse updated = inviteeService.updateStatus(id, request.status());
-        return ResponseEntity.ok(updated);
-    }
+  @PutMapping("/{id}/status")
+  public ResponseEntity<InviteeResponse> updateStatus(@PathVariable UUID id,
+      @Valid @RequestBody UpdateInviteeStatusRequest request) {
+    InviteeResponse updated = inviteeService.updateStatus(id, request.status());
+    return ResponseEntity.ok(updated);
+  }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable UUID id) {
-        inviteeService.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> delete(@PathVariable UUID id) {
+    inviteeService.deleteById(id);
+    return ResponseEntity.noContent().build();
+  }
 }
