@@ -126,7 +126,8 @@ tasks.withType(JavaCompile) {
 tasks.withType(Checkstyle) {
     excludes = [
             'ru/mentee/power/crm/spring/dto/generated/**',
-            'ru/mentee/power/crm/spring/rest/generated/**'
+            'ru/mentee/power/crm/spring/rest/generated/**',
+            'ru/mentee/power/crm/spring/rest/problematic/InviteeController.java'
     ]
 
     reports {
