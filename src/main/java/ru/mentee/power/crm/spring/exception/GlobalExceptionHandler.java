@@ -2,6 +2,7 @@ package ru.mentee.power.crm.spring.exception;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -35,6 +36,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         "Validation failed", request.getDescription(false).replace("uri=", ""), fieldErrors);
 
     return ResponseEntity.badRequest().body(responseBody);
+  }
+
+  @ExceptionHandler(DataIntegrityViolationException.class)
+  public ResponseEntity<ErrorResponse> handleDataIntegrityViolation(DataIntegrityViolationException ex,
+      WebRequest request) {
+    log.error("Data integrity violation: ", ex);
+    ErrorResponse errorResponse = new ErrorResponse(java.time.LocalDateTime.now(), 409, "Conflict",
+        "Data integrity violation", request.getDescription(false).substring(4), null);
+
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
   }
 
   @ExceptionHandler(EntityNotFoundException.class)

@@ -3,6 +3,7 @@ package ru.mentee.power.crm.spring.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -162,5 +163,9 @@ public class LeadController {
     model.addAttribute("currentFilter",
         status != null && !status.isBlank() ? LeadStatus.valueOf(status.toUpperCase()) : null);
     return "spring/list";
+  }
+  @PostMapping("/simulate-500")
+  public ResponseEntity<Void> simulateInternalServerError() {
+    throw new RuntimeException("This is an unexpected error for demonstration!");
   }
 }

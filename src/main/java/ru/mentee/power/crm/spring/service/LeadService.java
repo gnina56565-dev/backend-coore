@@ -3,7 +3,6 @@ package ru.mentee.power.crm.spring.service;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -45,8 +44,7 @@ public class LeadService {
   private final LeadProcessor leadProcessor;
   private final CompanyRepository companyRepository;
   private final EmailValidationFeignClient emailValidationFeignClient;
-  @Autowired
-  private LeadMapper leadMapper;
+  private final LeadMapper leadMapper;
 
   public List<Lead> getAllLeads() {
     return leadJpaRepository.findAll();
