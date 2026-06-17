@@ -25,7 +25,7 @@ import ru.mentee.power.crm.spring.client.EmailValidationResponse;
 import ru.mentee.power.crm.spring.dto.generated.LeadResponse;
 import ru.mentee.power.crm.spring.dto.generated.UpdateLeadRequest;
 import ru.mentee.power.crm.spring.exception.EntityNotFoundException;
-import ru.mentee.power.crm.spring.mapper.LeadMapper;
+import ru.mentee.power.crm.spring.mapper.GeneratedLeadMapper;
 import ru.mentee.power.crm.spring.repository.CompanyRepository;
 import ru.mentee.power.crm.spring.repository.DealRepository;
 
@@ -44,7 +44,7 @@ public class LeadService {
   private final LeadProcessor leadProcessor;
   private final CompanyRepository companyRepository;
   private final EmailValidationFeignClient emailValidationFeignClient;
-  private final LeadMapper leadMapper;
+  private final GeneratedLeadMapper leadMapper;
 
   public List<Lead> getAllLeads() {
     return leadJpaRepository.findAll();

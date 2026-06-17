@@ -11,7 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.mentee.power.crm.model.Lead;
 import ru.mentee.power.crm.model.LeadStatus;
 import ru.mentee.power.crm.spring.dto.generated.CreateLeadRequest;
-import ru.mentee.power.crm.spring.mapper.LeadMapper;
+import ru.mentee.power.crm.spring.mapper.GeneratedLeadMapper;
 import ru.mentee.power.crm.spring.service.LeadService;
 
 import java.util.UUID;
@@ -33,7 +33,7 @@ class LeadRestControllerValidationTest {
   private LeadService leadService;
 
   @MockitoBean
-  private LeadMapper leadMapper;
+  private GeneratedLeadMapper generatedLeadMapper;
 
   @Test
   void shouldReturn400_whenEmailIsBlank() throws Exception {
@@ -84,7 +84,7 @@ class LeadRestControllerValidationTest {
     Lead lead = Lead.builder().email(request.getEmail()).status(LeadStatus.NEW).build();
     lead.setId(UUID.randomUUID());
 
-    given(leadMapper.toEntity(request)).willReturn(lead);
+    given(generatedLeadMapper.toEntity(request)).willReturn(lead);
     given(leadService.save(Mockito.any(Lead.class))).willReturn(lead);
 
     String requestJson = objectMapper.writeValueAsString(request);

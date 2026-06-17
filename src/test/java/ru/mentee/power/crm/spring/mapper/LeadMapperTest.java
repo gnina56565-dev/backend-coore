@@ -13,9 +13,9 @@ import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-class LeadMapperTest {
+class GeneratedLeadMapperTest {
 
-  private final LeadMapper leadMapper = Mappers.getMapper(LeadMapper.class);
+  private final GeneratedLeadMapper leadMapper = Mappers.getMapper(GeneratedLeadMapper.class);
 
   @Test
   void shouldMapCreateRequestToEntity_whenValidData() {
@@ -44,6 +44,7 @@ class LeadMapperTest {
     lead.setId(testId);
     LocalDateTime localCreatedAt = LocalDateTime.now();
     lead.setCreatedAt(localCreatedAt);
+
     LeadResponse response = leadMapper.toResponse(lead);
 
     assertThat(response).isNotNull();
