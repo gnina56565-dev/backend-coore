@@ -1,24 +1,17 @@
 package ru.mentee.power.crm.spring.mapper;
+
 import org.mapstruct.Mapper;
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 @Mapper(componentModel = "spring")
-public interface DateTimeMapper {
+public class DateTimeMapper {
 
-  default OffsetDateTime map(LocalDateTime value) {
-    if (value == null) {
+  public OffsetDateTime toOffsetDateTime(LocalDateTime localDateTime) {
+    if (localDateTime == null) {
       return null;
     }
-
-    return value.atZone(ZoneOffset.systemDefault()).toOffsetDateTime();
-  }
-
-  default LocalDateTime map(OffsetDateTime value) {
-    if (value == null) {
-      return null;
-    }
-    return value.toLocalDateTime();
+    return localDateTime.atZone(ZoneOffset.systemDefault()).toOffsetDateTime();
   }
 }

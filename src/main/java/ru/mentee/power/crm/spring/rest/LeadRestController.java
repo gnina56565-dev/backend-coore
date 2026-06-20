@@ -51,11 +51,7 @@ public class LeadRestController implements LeadManagementApi {
 
   @Override
   public ResponseEntity<LeadResponse> updateLead(UUID id, UpdateLeadRequest updateLeadRequest) {
-    Lead existingLead = leadService.findById(id).orElseThrow(() -> new EntityNotFoundException("Lead", id.toString()));
-
-    leadMapper.updateEntity(updateLeadRequest, existingLead);
-    Lead updatedLead = leadService.update(id, existingLead);
-    LeadResponse response = leadMapper.toResponse(updatedLead);
+    LeadResponse response = leadService.updateLead(id, updateLeadRequest);
     return ResponseEntity.ok(response);
   }
 

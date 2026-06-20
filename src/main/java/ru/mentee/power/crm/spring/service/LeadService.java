@@ -105,6 +105,17 @@ public class LeadService {
   public LeadResponse updateLead(UUID id, UpdateLeadRequest request) {
     Lead lead = leadJpaRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Lead", id.toString()));
     leadMapper.updateEntity(request, lead);
+
+    if (lead.getCompanyName() != null) {
+      String companyName = lead.getCompanyName().trim();
+      Company company = companyRepository.findByName(companyName)
+          .orElseGet(() -> {
+            Company newCompany = new Company(companyName, null);
+            return companyRepository.save(newCompany);
+          });
+      lead.setCompany(company);
+    }
+    
     Lead savedLead = leadJpaRepository.save(lead);
     return leadMapper.toResponse(savedLead);
   }
