@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS employees (
+    id UUID PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    salary DECIMAL(19,2)
+);

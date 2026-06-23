@@ -17,6 +17,9 @@ databaseChangeLog:
   - include:
       file: migrations/006_create_deal_product.sql
       relativeToChangelogFile: true
+  - include:
+      file: migrations/007_create_employees.sql
+      relativeToChangelogFile: true
 
   # Измененный changeSet без preConditions
   - changeSet:
